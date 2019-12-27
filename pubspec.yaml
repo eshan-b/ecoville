@@ -1,0 +1,81 @@
+name: ecoville
+description: A new Flutter project.
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.2.2 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  flutter_rounded_date_picker: 0.3.0
+
+  google_sign_in: 
+
+  place_picker: 
+
+  http:
+
+  flutter_spinkit: ^4.1.1+1
+
+  bottom_navy_bar: ^5.2.2
+
+  intl: ^0.16.0 #for date formatting
+
+  cupertino_icons: ^0.1.2
+  image_picker:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+# The following section is specific to Flutter.
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - lib/StockImages/Mountain1.jpg
+    - lib/StockImages/ChillingFingersIcon.jpg
+    - lib/StockImages/TreeAppHeader.jpg
+    - lib/StockImages/EcoVille_Big_Logo.png
+    - lib/StockImages/Ecoville_WhiteCropped.png
+    - lib/StockImages/EcoVille_Big_Logo_Shifted.png
+    - lib/StockImages/ChillingFingersUserIcon.jpg
+    - lib/StockImages/google_logo.png
+
+
+  fonts:
+      - family: OpenSans
+        fonts:
+          - asset: fonts/OpenSans-Bold.ttf
+            weight: 700
+          - asset: fonts/OpenSans-BoldItalic.ttf
+            weight: 700
+            style: italic
+          - asset: fonts/OpenSans-ExtraBold.ttf
+            weight: 800
+          - asset: fonts/OpenSans-ExtraBoldItalic.ttf
+          - asset: fonts/OpenSans-Italic.ttf
+          - asset: fonts/OpenSans-Light.ttf
+            weight: 300
+          - asset: fonts/OpenSans-LightItalic.ttf
+            weight: 300
+            style: italic
+          - asset: fonts/OpenSans-Regular.ttf
+          - asset: fonts/OpenSans-SemiBold.ttf
+          - asset: fonts/OpenSans-SemiBoldItalic.ttf
+

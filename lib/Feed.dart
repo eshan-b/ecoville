@@ -1,8 +1,11 @@
+import 'package:ecoville/EventDetail.dart';
+import 'package:ecoville/service/comments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'Upload.dart';
 import 'service/event.dart';
 import 'dart:async';
+
+import 'service/supplies.dart';
 
 class FeedWidget extends StatefulWidget {
   //Information for the feeds
@@ -11,14 +14,13 @@ class FeedWidget extends StatefulWidget {
 }
 
 class _FeedWidgetState extends State<FeedWidget> {
-  
   Future<List<Event>> feeds;
 
   @override
   void initState() {
     super.initState();
-    print("InitState() callled");
-    this.feeds = this.listEvents();
+    print("InitState() called");
+    this.feeds = this.listEvents(); 
   }
 
   @override
@@ -27,6 +29,7 @@ class _FeedWidgetState extends State<FeedWidget> {
       future: this.feeds,
       builder: (BuildContext context, AsyncSnapshot<List<Event>> snapshot) {
         print("FutureBuilder is called with snapshot: $snapshot");
+
         if (snapshot.hasData) {
           print("Number of items in Snapshot.data: ${snapshot.data.length}");
           var bigBox = ListView.builder(
@@ -41,18 +44,19 @@ class _FeedWidgetState extends State<FeedWidget> {
                       width: double.infinity, //sets width to full page
                       height: 620.0,
                       decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            stops: [0.1, 0.5, 0.7, 0.9],
-                            colors: [
-                              Colors.grey[400],
-                              Colors.grey[300],
-                              Colors.grey[200],
-                              Colors.grey[100],
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(25.0)),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0.1, 0.5, 0.7, 0.9],
+                          colors: [
+                            Colors.grey[400],
+                            Colors.grey[300],
+                            Colors.grey[200],
+                            Colors.grey[100],
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(25.0)
+                      ),
 
                       child: Column(
                         children: <Widget>[
@@ -101,43 +105,23 @@ class _FeedWidgetState extends State<FeedWidget> {
         } else {
           var loading = Padding(
             padding: EdgeInsets.fromLTRB(10, 20, 10, 10),
-
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
-
+              
               children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: <Color>[
-                        Colors.lightGreen,
-                        Colors.green
-                      ]
-                      
-                    )
-                  ),
-
-                  child: Column(
-                    children: <Widget> [
-                      SpinKitPouringHourglass(
-                        color: Colors.grey,
-                        size: 50.0,
-                      ),
-                      SizedBox(height: 40),
-                      Text("Give me a sec...")
-                    ]
-                  )
-                )
+                SpinKitPouringHourglass(
+                  color: Colors.grey,
+                  size: 50.0,
+                ),
+                SizedBox(height: 40),
+                Text("Give me a sec...")
               ],
             )
           );
 
           return loading;
         }
-
       }
     );
   }
@@ -176,8 +160,13 @@ class _FeedWidgetState extends State<FeedWidget> {
 
   InkWell buildPostImage(Event event) {
     return InkWell(
+      onTap: () => {
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => EventDetail(event: event))
+        )
+      },
       //onDoubleTap() => likeTing
-      //onTap() => newScreenTing
       child: Container(
         margin: EdgeInsets.all(10.0),
         width: double.infinity,
@@ -272,6 +261,7 @@ class _FeedWidgetState extends State<FeedWidget> {
       var obj = EventService();
       return obj.list();
     } 
+    
 }
 
 //End of BigBoy Class

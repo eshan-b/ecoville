@@ -43,7 +43,7 @@ class Comments {
 }
 
 class CommentsService {
-  final baseUrl = "http://localhost:3000";
+  final baseUrl = "http://192.168.137.100:3000";
 
   Future<List<Comments>> list() async {
     var response = await http.get(baseUrl + "/comments");
@@ -76,9 +76,12 @@ class CommentsService {
   }
 
   Future<List<Comments>> find_all_comments(var eventId) async {
-    var response = await http.get(baseUrl + "/comments/" + eventId);
+    var url = baseUrl + "/comments/" + eventId;
+    print("Retrieving supplies from: $url");
+    var response = await http.get(url);
     if (response.statusCode == 200) {
-      var body = json.decode(response.body) as List;
+      print("Response from find_all_comments: ${response.body}");
+      var body = await json.decode(response.body) as List;
       return body.map((item) => Comments.fromJson(item)).toList();
     } else {
       print("find_all_comments(): ${response.statusCode}");

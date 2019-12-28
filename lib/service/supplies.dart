@@ -35,7 +35,7 @@ class Supplies {
 }
 
 class SuppliesService {
-  final baseUrl = "http://localhost:3000";
+  final baseUrl = "http://192.168.137.100:3000";
 
   Future<List<Supplies>> list() async {
     var response = await http.get(baseUrl + "/supplies");
@@ -68,8 +68,11 @@ class SuppliesService {
   }
 
   Future<List<Supplies>> find_all_supplies(var eventId) async {
-    var response = await http.get(baseUrl + "/supplies/" + eventId);
+    var url = baseUrl + "/supplies/" + eventId;
+    print("Retrieving supplies from: $url");
+    var response = await http.get(url);
     if (response.statusCode == 200) {
+      print("Response from find_all_supplies: ${response.body}");
       var body = json.decode(response.body) as List;
       return body.map((item) => Supplies.fromJson(item)).toList();
     } else {

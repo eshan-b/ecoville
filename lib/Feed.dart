@@ -30,23 +30,34 @@ class _FeedWidgetState extends State<FeedWidget> {
   void initState() {
     super.initState();
     print("InitState() called");
-    this.feeds = this.listEvents(); 
+    this.feeds = this.listEvents().catchError((e) => print("***********Exception: $e")); 
   }
 
   Future<List<Event>> listEvents() async {
-    var obj = EventService();
-    return obj.list();
+    List<Event> events = await EventService().list();
+    print("going to transform each event to fill lead user...");
+    var futures = <Future>[];
+    events.forEach((e) => futures.add(updateLeadUser(e)));
+    await Future.wait(futures);
+    print("...completed transformation");
+    return events;
   } 
+
+  Future <Event> updateLeadUser(Event event) async {
+    event.lead_user = await UsersService().find(event.user_id);
+    print("transformed: ${event.lead_user}");
+    return event;
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Event>>(
       future: this.feeds,
       builder: (BuildContext context, AsyncSnapshot<List<Event>> snapshot) {
-        print("FutureBuilder is called with snapshot: $snapshot");
+        print("Events - FutureBuilder is called with snapshot: ${snapshot.connectionState}");
 
         if (snapshot.hasData) {
-          print("Number of items in Snapshot.data: ${snapshot.data.length}");
+          print("Events - Number of items in Snapshot.data: ${snapshot.data.length}");
           var bigBox = ListView.builder(
             physics: AlwaysScrollableScrollPhysics(),
             itemCount: snapshot.data.length,

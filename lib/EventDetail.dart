@@ -25,39 +25,66 @@ class EventDetail extends StatefulWidget {
 }
 
 class _EventDetailState extends State<EventDetail> {
+  Future<List<Comments>> comments;
+  Future<List<Supplies>> supplies;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  loadData() async {
+    print("Event Detail...");
+    this.supplies = findAllSupplies();
+    this.comments = findAllComments();
+    var futures = <Future>[];
+    futures.add(this.supplies);
+    futures.add(this.comments);
+    await Future.wait(futures);
+    print("...Event Detail");
+  }
+  Future<List<Comments>> findAllComments() async {
+    print("going to transform each comment to fill postedBy user...");
+    List<Comments> list = await CommentsService().find_all_comments(widget.event.event_id);
+
+    var futures = <Future>[];
+    list.forEach((comment) => futures.add(updatePostedByUser(comment)));
+    await Future.wait(futures);
+    print("...completed transformation");
+    return list;
+  }
+
+  Future <Comments> updatePostedByUser(Comments comment) async {
+    comment.posted_by = await UsersService().find(comment.user_id);
+    print("transformed: ${comment.posted_by}");
+    return comment;
+  }
+
+  Future<List<Supplies>> findAllSupplies() async {
+    List<Supplies> list = await SuppliesService().find_all_supplies(widget.event.event_id);
+    return list;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green[600],
+      backgroundColor: Colors.grey[600],
       body: ListView(
         children: <Widget>[
           buildHeader(context),
 
           SizedBox(height: 10),
 
-          Container(
-            height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(
-              color: Colors.grey[400],
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(35.0)),
-            ),
-            child: ListView(
-              primary: false,
-              //physics: AlwaysScrollableScrollPhysics(),
-              children: <Widget>[
-                EventCard(currentUser: widget.currentUser, event: widget.event),
+          EventCard(currentUser: widget.currentUser, event: widget.event),
 
-                SizedBox(height: 20),
+          SizedBox(height: 20),
 
-                SuppliesCard(event: widget.event),
+          SuppliesCard(event: widget.event, supplies: supplies),
 
-                SizedBox(height: 20),
+          SizedBox(height: 20),
 
-                CommentsCard(event: widget.event),
-              ],
-            )
-          )
+          CommentsCard(event: widget.event, comments: comments),
         ]
       ),
 
@@ -188,24 +215,23 @@ class BottomCommentBar extends StatelessWidget {
 
 class CommentsCard extends StatefulWidget {
   final Event event;
+  final Future<List<Comments>> comments;
 
   const CommentsCard({
     Key key,
     @required this.event,
+    this.comments,
   }) : super(key: key);
 
   @override
-  _CommentsCardState createState() => _CommentsCardState();
+  _CommentsCardState createState() => _CommentsCardState(comments);
 }
 
 class _CommentsCardState extends State<CommentsCard> {
   Future<List<Comments>> comments;
 
-  @override
-  void initState() {
-    super.initState();
-    this.comments = CommentsService().find_all_comments(widget.event.event_id);
-  }
+  _CommentsCardState(this.comments);
+  
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +241,6 @@ class _CommentsCardState extends State<CommentsCard> {
           padding:  EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
           child: Container(
             width: double.infinity, //sets width to full page
-            height: 620.0,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -236,14 +261,15 @@ class _CommentsCardState extends State<CommentsCard> {
               child: FutureBuilder<List<Comments>> (
                 future: comments,
                 builder: (BuildContext context, AsyncSnapshot<List<Comments>> snapshot) {
+                  print("Comments - FutureBuilder is called with snapshot: ${snapshot.connectionState}");
                   if (snapshot.hasData) {
-                    return ExpandChild(
-                      child: ListView.builder(
-                        itemCount: snapshot.data.length,
-                        itemBuilder: (context, index) {
-                          return BuildComment(comment: snapshot.data[index]);
-                        }
-                      ),
+                    print("Comments  - Number of items in Snapshot.data: ${snapshot.data.length}");
+                    return ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (context, index) {
+                        return BuildComment(comment: snapshot.data[index]);
+                      }
                     );
                   } else if(snapshot.hasError) {
                     return Text("Error: Unable to load comments, error= ${snapshot.error}");
@@ -273,80 +299,55 @@ class BuildComment extends StatefulWidget {
 }
 
 class _BuildCommentState extends State<BuildComment> {
-  Future<Users> postedBy;
 
   @override
   void initState() {
     super.initState();
-    this.postedBy = UsersService().find(widget.comment.posted_by);
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(10.0),
-      child: FutureBuilder<Users> (
-        future: postedBy,
-        builder: (BuildContext context, AsyncSnapshot<Users> snapshot) {
-          if (snapshot.hasData) {
-            return ListTile(
-                leading: Container(
-                  width: 50.0,
-                  height: 50.0,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black45,
-                        offset: Offset(0, 2),
-                        blurRadius: 6.0,
-                      ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    child: ClipOval(
-                      child: Image(
-                        height: 50.0,
-                        width: 50.0,
-                        image: snapshot.data.photo != null ? NetworkImage(snapshot.data.photo) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-                title: Text(
-                  snapshot.data.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                subtitle: Text(widget.comment.message),
-                trailing: IconButton(
-                  icon: Icon(
-                    Icons.favorite_border,
-                  ),
-                  color: Colors.grey,
-                  onPressed: () => print('Like comment'),
-                ),
-              );
-          } else if(snapshot.hasError) {
-            return Row(
-              children: <Widget>[
-                Icon(Icons.warning),
-                Text("Whoops... Something went wrong...")
-              ],
-            );
-          } else {
-            return Row(
-              children: <Widget>[
-                SpinKitPouringHourglass(
-                  color: Colors.grey,
-                ),
-                Text("Give me a sec...")
-              ],
-            );
-          }
-        }
+      child: ListTile(
+        leading: Container(
+          width: 50.0,
+          height: 50.0,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black45,
+                offset: Offset(0, 2),
+                blurRadius: 6.0,
+              ),
+            ],
+          ),
+          child: CircleAvatar(
+            child: ClipOval(
+              child: Image(
+                height: 50.0,
+                width: 50.0,
+                image: (widget.comment.posted_by != null && widget.comment.posted_by.photo != null) ? NetworkImage(widget.comment.posted_by.photo) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+        title: Text(
+          widget.comment.posted_by != null ? widget.comment.posted_by.name : "Invalid User",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(widget.comment.message),
+        trailing: IconButton(
+          icon: Icon(
+            Icons.favorite_border,
+          ),
+          color: Colors.grey,
+          onPressed: () => print('Like comment'),
+        ),
       )
     );
   }
@@ -354,24 +355,23 @@ class _BuildCommentState extends State<BuildComment> {
 
 class SuppliesCard extends StatefulWidget {
   final Event event;
+  final Future<List<Supplies>> supplies;
 
   const SuppliesCard({
     Key key,
-    this.event
+    this.event,
+    this.supplies
   }) : super(key: key);
 
   @override
-  _SuppliesCardState createState() => _SuppliesCardState();
+  _SuppliesCardState createState() => _SuppliesCardState(this.supplies);
 }
 
 class _SuppliesCardState extends State<SuppliesCard> {
   Future<List<Supplies>> supplies;
 
-  @override
-  void initState() {
-    super.initState();
-    this.supplies = SuppliesService().find_all_supplies(widget.event.event_id);
-  }
+  _SuppliesCardState(this.supplies);
+  
 
   @override
   Widget build(BuildContext context) {
@@ -399,41 +399,38 @@ class _SuppliesCardState extends State<SuppliesCard> {
 
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 20.0),
-              child: Column(
-                children: <Widget>[
-                  Text("Supplies"),
-
-                  FutureBuilder<List<Supplies>> (
-                    future: supplies,
-                    builder: (BuildContext context, AsyncSnapshot<List<Supplies>> snapshot) {
-                      if (snapshot.hasData) {
-                        return ListView.builder(
-                            itemCount: snapshot.data.length,
-                            itemBuilder: (context, index) {
-                              return Text(snapshot.data[index].supply_name);
-                            }
-                        );
-                      } else if(snapshot.hasError) {
-                        return Row(
-                          children: <Widget>[
-                            Icon(Icons.warning),
-                            Text("Whoops... Something went wrong...")
-                          ],
-                        );
-                      } else {
-                        return Row(
-                          children: <Widget>[
-                            SpinKitPouringHourglass(
-                              color: Colors.grey,
-                            ),
-                            Text("Give me a sec...")
-                          ],
-                        );
-                      }
-                    }
-                  )
-                ],
+              child: FutureBuilder<List<Supplies>> (
+                future: supplies,
+                builder: (BuildContext context, AsyncSnapshot<List<Supplies>> snapshot) {
+                  print("Supplies - FutureBuilder is called with snapshot: ${snapshot.connectionState}");
+                  if (snapshot.hasData) {
+                    print("Supplies - Number of items in Snapshot.data: ${snapshot.data.length}");
+                    return ListView.builder(
+                        itemCount: snapshot.data.length,
+                        itemBuilder: (context, index) {
+                          return Text(snapshot.data[index].supply_name);
+                        }
+                    );
+                  } else if(snapshot.hasError) {
+                    return Row(
+                      children: <Widget>[
+                        Icon(Icons.warning),
+                        Text("Whoops... Something went wrong...")
+                      ],
+                    );
+                  } else {
+                    return Row(
+                      children: <Widget>[
+                        SpinKitPouringHourglass(
+                          color: Colors.grey,
+                        ),
+                        Text("Give me a sec...")
+                      ],
+                    );
+                  }
+                }
               )
+                
             )
           )
         )

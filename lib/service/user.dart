@@ -72,13 +72,19 @@ class UsersService {
   }
 
   Future<Users> find(var userId) async {
-    var response = await http.get(baseUrl + "/users/" + userId);
-    if (response.statusCode == 200) {
-      var body = json.decode(response.body);
-      return Users.fromJson(body);
-    } else {
-      print("find() $userId: ${response.statusCode}");
-      return null;
+    var url = baseUrl + "/users/" + userId;
+    print("user.find(): $url");
+    try {
+      var response = await http.get(url);
+      if (response.statusCode == 200) {
+        var body = await json.decode(response.body);
+        return Users.fromJson(body);
+      } else {
+        print("user.find() $userId: ${response.statusCode}");
+        return null;
+      }
+    } catch(e) {
+      print("user.find() error: $e");
     }
   }
 

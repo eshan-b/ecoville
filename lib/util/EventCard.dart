@@ -19,12 +19,10 @@ class EventCard extends StatefulWidget {
 }
 
 class _EventCardState extends State<EventCard> {
-  Future<Users> leadUser;
   
   @override
   void initState() {
     super.initState();
-    this.leadUser = UsersService().find(widget.event.lead_user);
   }
 
   @override
@@ -72,47 +70,37 @@ class _EventCardState extends State<EventCard> {
   }
 
   Widget buildListTile(Event event) {
-    return FutureBuilder<Users> (
-      future: leadUser,
-      builder: (BuildContext context, AsyncSnapshot<Users> snapshot) {
-        if (snapshot.hasData) {
-          return ListTile(
-            leading: Container(
-              width: 50.0,
-              height: 50.0,
-              decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
-                BoxShadow(
-                  color: Colors.black45, offset: Offset(0, 2), blurRadius: 6.0
-                )
-              ]),
-            child: CircleAvatar(
-                child: ClipOval(
-                  child: Image(
-                    height: 50,
-                    width: 50,
-                    image: snapshot.data.photo != null ? NetworkImage(snapshot.data.photo) : AssetImage('lib/StockImages/ChillingFingersIcon.jpg'),
-                    fit: BoxFit.cover
-                  ),
-                ),
-              ),
+    return ListTile(
+      leading: Container(
+        width: 50.0,
+        height: 50.0,
+        decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
+          BoxShadow(
+            color: Colors.black45, offset: Offset(0, 2), blurRadius: 6.0
+          )
+        ]),
+      child: CircleAvatar(
+          child: ClipOval(
+            child: Image(
+              height: 50,
+              width: 50,
+              image: (event.lead_user != null && event.lead_user.photo != null) ? NetworkImage(event.lead_user.photo) : AssetImage('lib/StockImages/ChillingFingersIcon.jpg'),
+              fit: BoxFit.cover
             ),
-            title: Text(
-              "${event.name}",
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-              )
-            ),
-            subtitle: Text("${snapshot.data.name} | ${event.posted_date}"),
-            trailing: Icon(Icons.more_vert),
-          );
-        } else if(snapshot.hasError) {
-          return Text("Error: Unable to load UserId: ${widget.event.lead_user}, error= ${snapshot.error}");
-        } else {
-          return Text("Loading lead user detail...");
-        }
-      }
+          ),
+        ),
+      ),
+      title: Text(
+        "${event.name}",
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+        )
+      ),
+      subtitle: Text(event.lead_user != null ? "${event.lead_user.name} | ${event.posted_date}" : "Invalid User | ${event.posted_date}"),
+      trailing: Icon(Icons.more_vert),
     );
-  }
+        
+}
 
   Widget buildPostImage(Event event) {
     return Container(

@@ -34,7 +34,16 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Material(
       child: Container(
-        color: Colors.white,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.green[600],
+              Colors.green[300]
+            ]
+          )
+        ),
 
         child: Column(
           children: <Widget>[
@@ -44,11 +53,14 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: EdgeInsets.all(20),
               child: Column(
                 children: <Widget>[
-                  Text(
-                    "Welcome",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 50,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Welcome",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 50,
+                      ),
                     ),
                   ),
 
@@ -57,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     "Simplicity is Key...\nJoin us to make the world a cleaner place",
                     style: TextStyle(
-                      color: Colors.black.withOpacity(.7), 
+                      color: Colors.white.withOpacity(.7), 
                       height: 1.4, 
                       fontSize: 20
                     ),
@@ -78,35 +90,36 @@ class _LoginScreenState extends State<LoginScreen> {
                   
                   //isLoading ? Center(child: CircularProgressIndicator()) : Container(),
 
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
 
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Image(
-                          image: AssetImage("lib/StockImages/Ecoville_WhiteCropped.png"),
-                          height: 50
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Image(
+                        image: AssetImage("lib/StockImages/Ecoville_WhiteCropped.png"),
+                        color: Colors.white,
+                        height: 50
+                      ),
+
+                      SizedBox(width: 10),
+
+                      Text(
+                        "Made by Chilling Fingers",
+                        style: TextStyle(
+                          color: Colors.white
                         ),
-
-                        SizedBox(width: 10),
-
-                        Text(
-                          "Made by Chilling Fingers",
-                          style: TextStyle(
-                            color: Colors.white
-                          ),
-                        )
-                      ],
-                    ),
+                      )
+                    ],
                   ),
                 ],
               )
             ),
 
-            Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: Image.asset("lib/StockImages/Leaf-bottom.png")
+            Expanded(
+                child: Align(
+                alignment: FractionalOffset.bottomCenter,
+                child: Image.asset("lib/StockImages/Leaf-bottom.png")
+              ),
             ),
           ],
         ),
@@ -114,15 +127,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  OutlineButton buildOutlineButton() {
-    return OutlineButton(
-      splashColor: Colors.grey,
+  RaisedButton buildOutlineButton() {
+    return RaisedButton(
+      splashColor: Colors.green[600],
       onPressed: () async => await login(),
       
-      color: Colors.grey,
+      color: Colors.green[300],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 2,
-      borderSide: BorderSide(color: Colors.grey),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: Row(
@@ -137,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 'Sign in with Google',
                 style: TextStyle(
                   fontSize: 20,
-                  color: Colors.grey 
+                  color: Colors.white 
                 ),
               ),
             )

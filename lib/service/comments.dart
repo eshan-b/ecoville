@@ -5,6 +5,7 @@ import 'dart:io';
 class Comments {
   var event_id;
   var comments_id;
+  var user_id;
   var posted_by;
   var date;
   var message;
@@ -13,7 +14,7 @@ class Comments {
     {
       this.event_id, 
       this.comments_id,
-      this.posted_by,
+      this.user_id,
       this.date,
       this.message 
     }
@@ -22,7 +23,7 @@ class Comments {
   Map<String, dynamic> toJson() => {
     "event_id": this.event_id, 
     "comments_id": this.comments_id, 
-    "posted_by": this.posted_by,
+    "posted_by": this.user_id,
     "date": this.date,
     "message": this.message 
   };
@@ -31,7 +32,7 @@ class Comments {
     return Comments(
       event_id: map["event_id"],
       comments_id: map["comments_id"], 
-      posted_by: map["posted_by"],
+      user_id: map["posted_by"],
       date: map["date"],
       message: map["message"]
     );

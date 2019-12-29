@@ -5,6 +5,7 @@ import 'dart:io';
 class Event {
   var event_id;
   var team_size = "0";
+  var user_id;
   var lead_user;
   var event_date;
   var name;
@@ -19,11 +20,11 @@ class Event {
     {
       this.event_id, 
       this.team_size, 
-      this.lead_user, 
+      this.user_id, 
       this.event_date, 
       this.name, 
       this.location, 
-      this. posted_date, 
+      this.posted_date, 
       this.likes, 
       this.dislikes, 
       this.comments_amt, 
@@ -34,7 +35,7 @@ class Event {
   Map<String, dynamic> toJson() => {
     "event_id": this.event_id, 
     "team_size": this.team_size.toString(), 
-    "lead_user": this.lead_user, 
+    "lead_user": this.user_id, 
     "event_date": this.event_date, 
     "name": this.name, 
     "location": this.location, 
@@ -49,7 +50,7 @@ class Event {
     return Event(
       event_id: map["event_id"], 
       team_size: map["team_size"].toString(), 
-      lead_user: map["lead_user"], 
+      user_id: map["lead_user"], 
       event_date: map["event_date"], 
       name: map["name"], 
       location: map["location"], 

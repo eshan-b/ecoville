@@ -19,6 +19,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  firebase_core: ^0.4.0+9
+  firebase_auth: ^0.14.0+5
+  cloud_firestore: ^0.12.9+5
+  firebase_analytics: ^5.0.2
+
   
   flutter_rounded_date_picker: 0.3.0
 
@@ -50,12 +56,14 @@ flutter:
   assets:
     - lib/StockImages/Mountain1.jpg
     - lib/StockImages/ChillingFingersIcon.jpg
-    - lib/StockImages/TreeAppHeader.jpg
     - lib/StockImages/EcoVille_Big_Logo.png
     - lib/StockImages/Ecoville_WhiteCropped.png
     - lib/StockImages/EcoVille_Big_Logo_Shifted.png
     - lib/StockImages/ChillingFingersUserIcon.jpg
     - lib/StockImages/google_logo.png
+    - lib/StockImages/Leaf-top.png
+    - lib/StockImages/Leaf-bottom.png
+    - lib/StockImages/Tree_User_Icon.png
 
 
   fonts:

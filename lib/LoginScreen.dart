@@ -34,80 +34,81 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Material(
       child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color.fromRGBO(38, 47, 92, 1), Color.fromRGBO(9, 92, 85, 1)]
-          )
-        ),
+        color: Colors.white,
 
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: <Widget>[
-              Text(
-                "Welcome",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 50,
-                ),
-              ),
+        child: Column(
+          children: <Widget>[
+            Image.asset("lib/StockImages/Leaf-top.png"),
 
-              SizedBox(height: 20),
-
-              Text(
-                "Simplicity is Key...\nJoin us to make the world a cleaner place",
-                style: TextStyle(
-                  color: Colors.white.withOpacity(.7), 
-                  height: 1.4, 
-                  fontSize: 20
-                ),
-              ),
-
-              SizedBox(height: 30),
-
-              (isLoading == true) ?
-                Center(
-                  child: SpinKitThreeBounce(
-                    color: Colors.white,
-                    size: 35,
-                  )
-                )
-              :
-                buildOutlineButton()
-              ,
-              
-              //isLoading ? Center(child: CircularProgressIndicator()) : Container(),
-
-              SizedBox(height: 20),
-
-              Expanded(
-                child: Align(
-                  alignment: FractionalOffset.bottomCenter,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Image(
-                        image: AssetImage("lib/StockImages/Ecoville_WhiteCropped.png"),
-                        height: 50
-                      ),
-
-                      SizedBox(width: 10),
-
-                      Text(
-                        "Made by Chilling Fingers",
-                        style: TextStyle(
-                          color: Colors.white
-                        ),
-                      )
-                    ],
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    "Welcome",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 50,
+                    ),
                   ),
-                ),
-              ),
 
-            ],
-          )
+                  SizedBox(height: 20),
+
+                  Text(
+                    "Simplicity is Key...\nJoin us to make the world a cleaner place",
+                    style: TextStyle(
+                      color: Colors.black.withOpacity(.7), 
+                      height: 1.4, 
+                      fontSize: 20
+                    ),
+                  ),
+
+                  SizedBox(height: 30),
+
+                  (isLoading == true) ?
+                    Center(
+                      child: SpinKitThreeBounce(
+                        color: Colors.green,
+                        size: 35,
+                      )
+                    )
+                  :
+                    buildOutlineButton()
+                  ,
+                  
+                  //isLoading ? Center(child: CircularProgressIndicator()) : Container(),
+
+                  SizedBox(height: 20),
+
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Image(
+                          image: AssetImage("lib/StockImages/Ecoville_WhiteCropped.png"),
+                          height: 50
+                        ),
+
+                        SizedBox(width: 10),
+
+                        Text(
+                          "Made by Chilling Fingers",
+                          style: TextStyle(
+                            color: Colors.white
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            ),
+
+            Align(
+              alignment: FractionalOffset.bottomCenter,
+              child: Image.asset("lib/StockImages/Leaf-bottom.png")
+            ),
+          ],
         ),
       )
     );
@@ -147,41 +148,40 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> login() async {
+    GoogleSignInAccount _currentUser = await _googleSignIn.signIn();
+
+    if (_currentUser != null) {
+      setState(() {
+        isLoading = true;
+      });
+
+      print("Logged-in successfully");
+      var service = UsersService();
+      var dbUser = await service.find(_currentUser.id);
       
-      
-      GoogleSignInAccount _currentUser = await _googleSignIn.signIn();
+      if (dbUser == null) {
+        print("User not found in database");
+        dbUser = Users();
+        dbUser.name = _currentUser.displayName;
+        dbUser.email = _currentUser.email;
+        dbUser.user_id = _currentUser.id;
+        dbUser.photo = _currentUser.photoUrl;
 
-      if (_currentUser != null) {
-        setState(() {
-          isLoading = true;
-        });
-
-        print("Logged-in successfully");
-        var service = UsersService();
-        var dbUser = await service.find(_currentUser.id);
-        
-        if (dbUser == null) {
-          print("User not found in database");
-          dbUser = Users();
-          dbUser.name = _currentUser.displayName;
-          dbUser.email = _currentUser.email;
-          dbUser.user_id = _currentUser.id;
-          dbUser.photo = _currentUser.photoUrl;
-
-          print("Creating user in database");
-          var createStatus = await service.post(dbUser);
-          print("CreateStatus: $createStatus");
-        }
-
-        setState(() {
-          isLoading = false;
-        });
-
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(currentUser: _currentUser)
-          )
-        );
+        print("Creating user in database");
+        var createStatus = await service.post(dbUser);
+        print("CreateStatus: $createStatus");
       }
+
+      setState(() {
+        isLoading = false;
+      });
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(currentUser: dbUser)
+        )
+      );
     }
+  }
+
 }

@@ -1,5 +1,8 @@
-import 'package:ecoville/EventDetail.dart';
-import 'package:ecoville/service/comments.dart';
+import 'package:ecoville/service/user.dart';
+
+import 'EventDetail.dart';
+import 'service/comments.dart';
+import 'util/EventCard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'service/event.dart';
@@ -8,13 +11,20 @@ import 'dart:async';
 import 'service/supplies.dart';
 
 class FeedWidget extends StatefulWidget {
+  Users currentUser;
+
+  FeedWidget(this.currentUser);
+
   //Information for the feeds
   @override
-  _FeedWidgetState createState() => _FeedWidgetState();
+  _FeedWidgetState createState() => _FeedWidgetState(currentUser);
 }
 
 class _FeedWidgetState extends State<FeedWidget> {
   Future<List<Event>> feeds;
+  Users currentUser;
+
+  _FeedWidgetState(this.currentUser);
 
   @override
   void initState() {
@@ -22,6 +32,11 @@ class _FeedWidgetState extends State<FeedWidget> {
     print("InitState() called");
     this.feeds = this.listEvents(); 
   }
+
+  Future<List<Event>> listEvents() async {
+    var obj = EventService();
+    return obj.list();
+  } 
 
   @override
   Widget build(BuildContext context) {
@@ -36,45 +51,15 @@ class _FeedWidgetState extends State<FeedWidget> {
             physics: AlwaysScrollableScrollPhysics(),
             itemCount: snapshot.data.length,
             itemBuilder: (context, index) {
-              return Column(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                    child: Container(
-                      width: double.infinity, //sets width to full page
-                      height: 620.0,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: [0.1, 0.5, 0.7, 0.9],
-                          colors: [
-                            Colors.grey[400],
-                            Colors.grey[300],
-                            Colors.grey[200],
-                            Colors.grey[100],
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(25.0)
-                      ),
-
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20.0),
-                            child: Column(
-                              children: <Widget>[
-                                buildListTile(snapshot.data[index]), //List Tile: User, Date,
-                                buildPostImage(snapshot.data[index]), //Actual Image of the Post
-                                buildLikesView(snapshot.data[index]) 
-                              ]
-                            )
-                          )
-                        ]
-                      )
-                    )
+              Event event = snapshot.data[index];
+              return InkWell(
+                onTap: () => {
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (context) => EventDetail(currentUser: currentUser, event: event))
                   )
-                ]
+                },
+                child: EventCard(currentUser: currentUser, event: event)
               );
             }
           );
@@ -126,6 +111,7 @@ class _FeedWidgetState extends State<FeedWidget> {
     );
   }
 
+/* ++++++++++ NOT USED CODE ++++++++++++++++++++++++++++++++
   ListTile buildListTile(Event event) {
     return ListTile(
       leading: Container(
@@ -256,11 +242,8 @@ class _FeedWidgetState extends State<FeedWidget> {
         )
       );
     }
-
-    Future<List<Event>> listEvents() {
-      var obj = EventService();
-      return obj.list();
-    } 
+*/ // +++++++++++++++++++ Not used code +++++++++++++++++++++++++++
+    
     
 }
 

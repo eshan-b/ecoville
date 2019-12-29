@@ -1,4 +1,3 @@
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:ecoville/Feed.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -8,7 +7,7 @@ import 'util/color_utils.dart' show HexColor;
 //import 'package:ecoville/LoginScreen.dart';
 
 class HomeScreen extends StatefulWidget {
-  GoogleSignInAccount currentUser;
+  Users currentUser;
   HomeScreen({Key key, @required this.currentUser}) : super (key: key);
 
   @override
@@ -23,7 +22,7 @@ class HomeScreen extends StatefulWidget {
 
 
 class HomeScreenState extends State<HomeScreen> {
-  GoogleSignInAccount currentUser;
+  Users currentUser;
   HomeScreenState({@required this.currentUser});
 
   int currentIndex = 0; //for BottomNavyBar
@@ -64,7 +63,7 @@ class HomeScreenState extends State<HomeScreen> {
         ];
       },
 
-      body: FeedWidget()
+      body: FeedWidget(currentUser)
     );
 
     //Hamburger YumYum Menu
@@ -80,9 +79,9 @@ class HomeScreenState extends State<HomeScreen> {
               ])
             ),
             currentAccountPicture: CircleAvatar(
-              backgroundImage: NetworkImage(currentUser.photoUrl),
+              backgroundImage: NetworkImage(currentUser.photo),
             ),
-            accountName: Text(currentUser.displayName), //replace with logged in user
+            accountName: Text(currentUser.name), //replace with logged in user
             accountEmail: Text(currentUser.email),
           ),
           ListTile(title: Text('Eshi 1')),
@@ -137,7 +136,7 @@ class HomeScreenState extends State<HomeScreen> {
     //Top Bar with Text
     var barTing = Scaffold(
       appBar: appBar,
-      body: FeedWidget(),
+      body: FeedWidget(currentUser),
       drawer: drawerTing,
       floatingActionButton: FloatingActionButton(
         elevation: 2,

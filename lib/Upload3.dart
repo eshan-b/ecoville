@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'Upload4.dart';
 import 'dart:io';
-import 'dart:async';
 
 class AddRemoveListView extends StatefulWidget {
+  var _eventModelObject;
+  AddRemoveListView(this._eventModelObject);
+
+  @override
   _AddRemoveListViewState createState() => _AddRemoveListViewState();
 }
 
@@ -24,7 +27,7 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Supplies for Project'),
+        title: Text('Supplies for Event'),
       ),
 
       body: Column(
@@ -35,6 +38,14 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
                 children: <Widget>[
                   TextFormField(
                     controller: _textController,
+
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+
                     decoration: InputDecoration(
                       labelText: "What supplies do you need?",
                     ),
@@ -113,7 +124,7 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
             onPressed: () => {
               Navigator.push(
                 context, 
-                MaterialPageRoute(builder: (context) => showMap())
+                MaterialPageRoute(builder: (context) => enterLocation(widget._eventModelObject))
               )
             },
 
@@ -128,7 +139,7 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
           ),
 
         ],
-      ),
+      )
     );
   }
 }

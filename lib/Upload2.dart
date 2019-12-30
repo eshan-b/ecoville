@@ -1,4 +1,5 @@
 import 'package:ecoville/Upload3.dart';
+import 'package:ecoville/service/event_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
@@ -6,6 +7,9 @@ import 'package:flutter_rounded_date_picker/rounded_picker.dart';
 import 'package:intl/intl.dart';
 
 class aboutProject extends StatefulWidget {
+  var _eventModelObject;
+  aboutProject(this._eventModelObject);
+
   @override
   _aboutProjectState createState() => _aboutProjectState();
 }
@@ -60,13 +64,17 @@ class _aboutProjectState extends State<aboutProject> {
       });
     }
   }
-  
+
+  final eventNameController = TextEditingController();
+
+  final teamSizeController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Project Info"),
+          title: Text("Event Description"),
         ),
 
         body: ListView(
@@ -75,6 +83,15 @@ class _aboutProjectState extends State<aboutProject> {
             Padding(
               padding: const EdgeInsets.fromLTRB(15, 8, 8, 8),
               child: TextFormField(
+                controller: eventNameController,
+
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter some text';
+                  }
+                  return null;
+                },
+
                 decoration: InputDecoration(
                   labelText: 'What is your project name?'
                 ),
@@ -138,9 +155,18 @@ class _aboutProjectState extends State<aboutProject> {
             Padding(
               padding: const EdgeInsets.fromLTRB(15, 8, 8, 8),
               child: TextFormField(
+                controller: teamSizeController,
+
                 decoration: InputDecoration(
                   labelText: 'How many people are attending?'
                 ),
+
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter some text';
+                  }
+                  return null;
+                },
               ),
             ),
 
@@ -150,7 +176,7 @@ class _aboutProjectState extends State<aboutProject> {
               onPressed: () => {
                 Navigator.push(
                   context, 
-                  MaterialPageRoute(builder: (context) => AddRemoveListView())
+                  MaterialPageRoute(builder: (context) => AddRemoveListView(widget._eventModelObject))
                 )
               },
 

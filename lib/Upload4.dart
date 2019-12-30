@@ -3,13 +3,16 @@ import 'dart:io';
 import 'dart:async';
 import 'package:place_picker/place_picker.dart';
 
-class showMap extends StatefulWidget {
+class enterLocation extends StatefulWidget {
+  var _eventModelObject;
+  enterLocation(this._eventModelObject);
+
   @override
-  _showMapState createState() => _showMapState();
+  _enterLocationState createState() => _enterLocationState();
 }
 
-class _showMapState extends State<showMap> {
-  void showPlacePicker() async {
+class _enterLocationState extends State<enterLocation> {
+  /*void showPlacePicker() async {
     var customLocation; //will fix later
         LocationResult result = await Navigator.of(context).push(
           MaterialPageRoute(
@@ -22,12 +25,36 @@ class _showMapState extends State<showMap> {
     );
 
     print(result);
-  }
+  }*/
+
+  final eventLocationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Event Location'),
+      ),
+
+      body: Container(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(15, 8, 8, 8),
+          child: TextFormField(
+            controller: eventLocationController,
+
+            decoration: InputDecoration(
+              labelText: 'Where does your project take place?'
+            ),
+
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter some text';
+              }
+              return null;
+            },
+          ),
+        ),
+      )
     );
   }
 }

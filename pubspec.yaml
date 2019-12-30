@@ -24,7 +24,8 @@ dependencies:
   firebase_auth: 
   cloud_firestore:
   firebase_analytics: 
-  
+  firebase_storage: 
+
   flutter_rounded_date_picker: 0.3.0
 
   google_sign_in: 

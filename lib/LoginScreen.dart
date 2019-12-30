@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'HomeScreen.dart';
@@ -13,6 +15,8 @@ final GoogleSignIn _googleSignIn = GoogleSignIn(
     "email",
   ]
 );
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -159,41 +163,58 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> login() async {
-    GoogleSignInAccount _currentUser = await _googleSignIn.signIn();
+  Future<FirebaseUser> login() async {
+    
+    try{
+      final GoogleSignInAccount _currentUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth = await _currentUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.getCredential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken
+      );
 
-    if (_currentUser != null) {
-      setState(() {
-        isLoading = true;
-      });
+      final FirebaseUser user = (await _auth.signInWithCredential(credential)).user;
 
-      print("Logged-in successfully");
-      var service = UsersService();
-      var dbUser = await service.find(_currentUser.id);
-      
-      if (dbUser == null) {
-        print("User not found in database");
-        dbUser = Users();
-        dbUser.name = _currentUser.displayName;
-        dbUser.email = _currentUser.email;
-        dbUser.user_id = _currentUser.id;
-        dbUser.photo = _currentUser.photoUrl;
+      if (_currentUser != null) {
+        setState(() {
+          isLoading = true;
+        });
 
-        print("Creating user in database");
-        var createStatus = await service.post(dbUser);
-        print("CreateStatus: $createStatus");
+        CollectionReference users = Firestore.instance.collection("users");
+
+        var snapshot = await users.where("user_id", isEqualTo: _currentUser.id).getDocuments();
+        var dbUser;
+        if (snapshot.documents.length == 0) {
+           dbUser = await users.add({
+            "displayName": _currentUser.displayName,
+            "photoUrl": _currentUser.photoUrl,
+            "user_id": _currentUser.id,
+            "email": _currentUser.email
+          });
+          dbUser = await dbUser.get();
+        } else {
+          dbUser = snapshot.documents.first;
+        }
+        
+
+        setState(() {
+          isLoading = false;
+        });
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(currentUser: dbUser)
+          )
+        );
       }
 
-      setState(() {
-        isLoading = false;
-      });
+      return user;
 
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => HomeScreen(currentUser: dbUser)
-        )
-      );
+    } catch(error) {
+      print(error);
     }
+
+    
   }
 
 }

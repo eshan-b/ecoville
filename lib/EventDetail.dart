@@ -1,12 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:io';
-
-import 'service/comments.dart';
-import 'service/event.dart';
-import 'service/supplies.dart';
-import 'service/user.dart';
 
 import 'util/EventCard.dart';
 
@@ -15,8 +11,8 @@ import 'package:expand_widget/expand_widget.dart'; //for expand text (readMore)
 import 'util/read_more_text.dart';
 
 class EventDetail extends StatefulWidget {
-  Users currentUser;
-  Event event;
+  final currentUser;
+  final event;
 
   EventDetail({this.currentUser, this.event});
 
@@ -25,66 +21,35 @@ class EventDetail extends StatefulWidget {
 }
 
 class _EventDetailState extends State<EventDetail> {
-  Future<List<Comments>> comments;
-  Future<List<Supplies>> supplies;
-
+  Query get comments => Firestore.instance.collection("comments").where("event_id", isEqualTo: widget.event['event_id']);
+  Query get supplies => Firestore.instance.collection("supplies").where("event_id", isEqualTo: widget.event['event_id']);
+  
   @override
   void initState() {
     super.initState();
-    loadData();
-  }
-
-  loadData() async {
-    print("Event Detail...");
-    this.supplies = findAllSupplies();
-    this.comments = findAllComments();
-    var futures = <Future>[];
-    futures.add(this.supplies);
-    futures.add(this.comments);
-    await Future.wait(futures);
-    print("...Event Detail");
-  }
-  Future<List<Comments>> findAllComments() async {
-    print("going to transform each comment to fill postedBy user...");
-    List<Comments> list = await CommentsService().find_all_comments(widget.event.event_id);
-
-    var futures = <Future>[];
-    list.forEach((comment) => futures.add(updatePostedByUser(comment)));
-    await Future.wait(futures);
-    print("...completed transformation");
-    return list;
-  }
-
-  Future <Comments> updatePostedByUser(Comments comment) async {
-    comment.posted_by = await UsersService().find(comment.user_id);
-    print("transformed: ${comment.posted_by}");
-    return comment;
-  }
-
-  Future<List<Supplies>> findAllSupplies() async {
-    List<Supplies> list = await SuppliesService().find_all_supplies(widget.event.event_id);
-    return list;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[600],
-      body: ListView(
+      body:  ListView(
         children: <Widget>[
           buildHeader(context),
 
-          SizedBox(height: 10),
+          //SizedBox(height: 10),
 
+          
           EventCard(currentUser: widget.currentUser, event: widget.event),
 
-          SizedBox(height: 20),
+          //SizedBox(height: 20),
 
-          SuppliesCard(event: widget.event, supplies: supplies),
+          //SuppliesCard(event: widget.event, supplies: supplies),
 
-          SizedBox(height: 20),
+          //SizedBox(height: 20),
 
-          CommentsCard(event: widget.event, comments: comments),
+          //CommentsCard(event: widget.event, comments: comments),
+          commentCard
         ]
       ),
 
@@ -118,10 +83,83 @@ class _EventDetailState extends State<EventDetail> {
     );
   }
 
+  Widget get commentCard => StreamBuilder<QuerySnapshot> (
+      stream: comments.snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        print("Comments - FutureBuilder is called with snapshot: ${snapshot.connectionState}");
+        if (snapshot.hasData) {
+          print("Comments  - Number of items in Snapshot.data.documents: ${snapshot.data.documents.length}");
+          return ListView.builder(
+            shrinkWrap: true,
+            itemCount: snapshot.data.documents.length,
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              var comment = snapshot.data.documents[index];
+              return commentTile(comment);
+            }
+          );
+        } else if(snapshot.hasError) {
+          return Text("Error: Unable to load comments, error= ${snapshot.error}");
+        } else {
+          return Text("Loading comments...");
+        }
+      }
+  );
+
+  Widget commentTile(var comment) {
+    var postedByUser = findUser(comment);
+    return FutureBuilder<dynamic> (
+      future: postedByUser,
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshotUser) {
+        if (!snapshotUser.hasData) return Text("Loading");
+        var user = snapshotUser.data;
+        print('CommentTile postedBy: $user');
+        return ListTile(
+          leading: CircleAvatar(
+              child: ClipOval(
+                child: Image(
+                  height: 50.0,
+                  width: 50.0,
+                  image: (user != null && user['photoUrl'] != null) ? NetworkImage(user['photoUrl']) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          title: Text(
+            user != null && user['displayName'] != null ? user['displayName'] : "Invalid User",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Text(comment['message']),
+          trailing: IconButton(
+            icon: Icon(
+              Icons.favorite_border,
+            ),
+            color: Colors.grey,
+            onPressed: () => print('Like comment'),
+          ),
+        );
+      }
+    );
+  }
+
+  findUser(var comment) async {
+    return await _findPostedBy(comment);
+  }
+  Future _findPostedBy(var comment) async {
+    print("Retrieving posted by...");
+    QuerySnapshot snapshot = await Firestore.instance.collection("users").where("user_id", isEqualTo: comment['posted_by']).getDocuments();
+    if (snapshot.documents.length > 0) {
+      return snapshot.documents.first;
+    } else {
+      throw Exception("Error: posted_by user is invalid in the event");
+    }
+  }
 }
 
 class BottomCommentBar extends StatelessWidget {
-  final Users currentUser;
+  final currentUser;
 
   const BottomCommentBar({
     Key key,
@@ -183,7 +221,7 @@ class BottomCommentBar extends StatelessWidget {
                     child: Image(
                       height: 48.0,
                       width: 48.0,
-                      image: currentUser.photo != null ? NetworkImage(currentUser.photo) : Icons.person,
+                      image: currentUser['photoUrl'] != null ? NetworkImage(currentUser['photoUrl']) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -214,8 +252,8 @@ class BottomCommentBar extends StatelessWidget {
 }
 
 class CommentsCard extends StatefulWidget {
-  final Event event;
-  final Future<List<Comments>> comments;
+  final event;
+  final CollectionReference comments;
 
   const CommentsCard({
     Key key,
@@ -224,21 +262,16 @@ class CommentsCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CommentsCardState createState() => _CommentsCardState(comments);
+  _CommentsCardState createState() => _CommentsCardState();
 }
 
 class _CommentsCardState extends State<CommentsCard> {
-  Future<List<Comments>> comments;
-
-  _CommentsCardState(this.comments);
-  
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         Padding(
-          padding:  EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+          padding:  EdgeInsets.all(10),
           child: Container(
             width: double.infinity, //sets width to full page
             decoration: BoxDecoration(
@@ -257,18 +290,17 @@ class _CommentsCardState extends State<CommentsCard> {
             ),
 
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.0),
-              child: FutureBuilder<List<Comments>> (
-                future: comments,
-                builder: (BuildContext context, AsyncSnapshot<List<Comments>> snapshot) {
+              padding: EdgeInsets.all(10.0),
+              child: StreamBuilder<QuerySnapshot> (
+                stream: widget.comments.snapshots(),
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   print("Comments - FutureBuilder is called with snapshot: ${snapshot.connectionState}");
                   if (snapshot.hasData) {
-                    print("Comments  - Number of items in Snapshot.data: ${snapshot.data.length}");
+                    print("Comments  - Number of items in Snapshot.data.documents: ${snapshot.data.documents.length}");
                     return ListView.builder(
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: snapshot.data.length,
+                      itemCount: snapshot.data.documents.length,
                       itemBuilder: (context, index) {
-                        return BuildComment(comment: snapshot.data[index]);
+                        return BuildComment(comment: snapshot.data.documents[index]);
                       }
                     );
                   } else if(snapshot.hasError) {
@@ -287,7 +319,7 @@ class _CommentsCardState extends State<CommentsCard> {
 }
 
 class BuildComment extends StatefulWidget {
-  final Comments comment;
+  final comment;
   
   const BuildComment({
     Key key,
@@ -299,15 +331,28 @@ class BuildComment extends StatefulWidget {
 }
 
 class _BuildCommentState extends State<BuildComment> {
+  var postedByUser; 
 
   @override
   void initState() {
     super.initState();
+    findPostedBy();
+  }
+
+  Future findPostedBy() async {
+    print("Retrieving posted by...");
+    QuerySnapshot snapshot = await Firestore.instance.collection("users").where("user_id", isEqualTo: postedByUser).getDocuments();
+    if (snapshot.documents.length > 0) {
+      postedByUser= snapshot.documents.first;
+    } else {
+      throw Exception("Error: posted_by user is invalid in the event");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
+      height: 120,
       padding: EdgeInsets.all(10.0),
       child: ListTile(
         leading: Container(
@@ -328,19 +373,19 @@ class _BuildCommentState extends State<BuildComment> {
               child: Image(
                 height: 50.0,
                 width: 50.0,
-                image: (widget.comment.posted_by != null && widget.comment.posted_by.photo != null) ? NetworkImage(widget.comment.posted_by.photo) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
+                image: (postedByUser != null && postedByUser['photoUrl'] != null) ? NetworkImage(postedByUser['photoUrl']) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
         ),
         title: Text(
-          widget.comment.posted_by != null ? widget.comment.posted_by.name : "Invalid User",
+          postedByUser != null ? postedByUser['displayName'] : "Invalid User",
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
-        subtitle: Text(widget.comment.message),
+        subtitle: Text(widget.comment['message']),
         trailing: IconButton(
           icon: Icon(
             Icons.favorite_border,
@@ -354,8 +399,8 @@ class _BuildCommentState extends State<BuildComment> {
 }
 
 class SuppliesCard extends StatefulWidget {
-  final Event event;
-  final Future<List<Supplies>> supplies;
+  final event;
+  final CollectionReference supplies;
 
   const SuppliesCard({
     Key key,
@@ -364,14 +409,10 @@ class SuppliesCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SuppliesCardState createState() => _SuppliesCardState(this.supplies);
+  _SuppliesCardState createState() => _SuppliesCardState();
 }
 
 class _SuppliesCardState extends State<SuppliesCard> {
-  Future<List<Supplies>> supplies;
-
-  _SuppliesCardState(this.supplies);
-  
 
   @override
   Widget build(BuildContext context) {
@@ -399,16 +440,16 @@ class _SuppliesCardState extends State<SuppliesCard> {
 
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 20.0),
-              child: FutureBuilder<List<Supplies>> (
-                future: supplies,
-                builder: (BuildContext context, AsyncSnapshot<List<Supplies>> snapshot) {
+              child: StreamBuilder<QuerySnapshot> (
+                stream: widget.supplies.snapshots(),
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   print("Supplies - FutureBuilder is called with snapshot: ${snapshot.connectionState}");
                   if (snapshot.hasData) {
-                    print("Supplies - Number of items in Snapshot.data: ${snapshot.data.length}");
+                    print("Supplies - Number of items in Snapshot.data.documents: ${snapshot.data.documents.length}");
                     return ListView.builder(
-                        itemCount: snapshot.data.length,
+                        itemCount: snapshot.data.documents.length,
                         itemBuilder: (context, index) {
-                          return Text(snapshot.data[index].supply_name);
+                          return Text(snapshot.data.documents[index]['items']);
                         }
                     );
                   } else if(snapshot.hasError) {

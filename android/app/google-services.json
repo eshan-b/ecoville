@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "384097260471",
+    "firebase_url": "https://ecoville-project.firebaseio.com",
+    "project_id": "ecoville-project",
+    "storage_bucket": "ecoville-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384097260471:android:f7ea4330ece386793ece32",
+        "android_client_info": {
+          "package_name": "com.chillingfingers.ecoville"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "384097260471-31stc93egnr6o97n8ed3s5eh0es0ck0a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chillingfingers.ecoville",
+            "certificate_hash": "7d1a3e69df174d987668704049f5eb69b7fae809"
+          }
+        },
+        {
+          "client_id": "384097260471-t8l8dtl8b26acjk4ck4q9b0um0nmess0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4h3fys-6wyZKeKHsYccFmyN6qKbG5pjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "384097260471-t8l8dtl8b26acjk4ck4q9b0um0nmess0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

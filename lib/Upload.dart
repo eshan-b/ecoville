@@ -1,5 +1,4 @@
-import 'package:ecoville/Upload3.dart';
-import 'package:ecoville/Upload4.dart';
+import 'package:ecoville/HomeScreen.dart';
 import 'package:ecoville/service/event_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,66 +9,62 @@ import 'dart:io';
 
 import 'Upload2.dart';
 
+bool isNextButtonEnabled;
 
 class UploadImage extends StatefulWidget {
+  final currentUser;
+  UploadImage({@required this.currentUser});
   @override
   _UploadImageState createState() => _UploadImageState();
 }
 
-class _UploadImageState extends State<UploadImage> with SingleTickerProviderStateMixin {
+class _UploadImageState extends State<UploadImage> {
   /******* Event Object *******/ //Used throughout 4 screens
   var eventModelObject = EventModel();
-
-  TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = new TabController(vsync: this, length: 4);
-    _tabController.addListener(_onTabChange);
-  }
-
-  void _onTabChange() {
-    print("Tab Index: ${_tabController.index}");
+    isNextButtonEnabled = false; //we start with false
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      initialIndex: 1,
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget> [
-              Text("Upload Image"),
-              RaisedButton(
-                onPressed: () {
-                  //uploadPic(context);
-                },
-                splashColor: Colors.green[600],
-                color: Colors.green[300],
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-                highlightElevation: 1,
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget> [
+            Text("Upload Image"),
 
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: Text(
-                    'Create',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.white 
-                    ),
+            RaisedButton(
+              onPressed: isNextButtonEnabled == false ? null : () => {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => HomeScreen(currentUser: widget.currentUser)) //Just to pass currentUser back to Home Page
+                )
+              },
+              splashColor: Colors.green[600],
+              color: Colors.green[300],
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+              highlightElevation: 1,
+
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.white 
                   ),
                 ),
               ),
-            ]
-          ),
+            ),
+          ]
         ),
-
-        body: UploadImageFile(eventModelObject)
       ),
+
+      body: UploadImageFile(eventModelObject)
     );
   }
 }
@@ -99,6 +94,7 @@ class _UploadImageFileState extends State<UploadImageFile> {
 
     setState(() {
       _image = image;
+      _image == null ? isNextButtonEnabled = false : isNextButtonEnabled = true;
     });
 
     widget._eventModelObject.photo = _image;
@@ -172,24 +168,22 @@ class _UploadImageFileState extends State<UploadImageFile> {
 
         SizedBox(height: 20),
 
-        _image == null ? Container() : //
-        Expanded(
-          child: RaisedButton(
-            onPressed: () => {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => aboutProject(widget._eventModelObject))
-              )
-            },
-            color: Colors.green[200],
-            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-            child: Row(
-              children: <Widget>[
-                Icon(Icons.arrow_forward),
-                Text(" Next")
-              ]
+        _image == null ? Container() :
+        RaisedButton(
+          onPressed: () => {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => aboutProject(widget._eventModelObject))
             )
-          ),
+          },
+          color: Colors.green[200],
+          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+          child: Row(
+            children: <Widget>[
+              Icon(Icons.arrow_forward),
+              Text(" Next")
+            ]
+          )
         ),
         
       ],

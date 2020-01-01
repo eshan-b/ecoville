@@ -5,7 +5,6 @@ import 'dart:io';
 import 'HomeScreen.dart';
 import 'dart:async';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'service/user.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 //keytool -list -v -keystore "%USERPROFILE%\.android\debug.keystore" -alias androiddebugkey
@@ -88,12 +87,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         size: 35,
                       )
                     )
-                  :
-                    buildOutlineButton()
-                  ,
+                  : buildOutlineButton(),
                   
-                  //isLoading ? Center(child: CircularProgressIndicator()) : Container(),
-
                   SizedBox(height: 30),
 
                   Row(
@@ -120,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
 
             Expanded(
-                child: Align(
+              child: Align(
                 alignment: FractionalOffset.bottomCenter,
                 child: Image.asset("lib/StockImages/Leaf-bottom.png")
               ),
@@ -164,7 +159,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<FirebaseUser> login() async {
-    
     try{
       final GoogleSignInAccount _currentUser = await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleAuth = await _currentUser.authentication;
@@ -196,7 +190,6 @@ class _LoginScreenState extends State<LoginScreen> {
           dbUser = snapshot.documents.first;
         }
         
-
         setState(() {
           isLoading = false;
         });
@@ -207,14 +200,10 @@ class _LoginScreenState extends State<LoginScreen> {
           )
         );
       }
-
       return user;
 
     } catch(error) {
       print(error);
     }
-
-    
   }
-
 }

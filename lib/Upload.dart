@@ -90,7 +90,16 @@ class _UploadImageFileState extends State<UploadImageFile> {
       _image = image;
     });
 
-    widget._eventModelObject.photo = _image;
+    
+  }
+
+  Future uploadPic(BuildContext context) async{
+    String fileName = basename(_image.path);
+    StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
+    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    widget._eventModelObject.photo = await taskSnapshot.ref.getDownloadURL();
+    print(widget._eventModelObject.photo);
   }
 
   @override
@@ -166,11 +175,13 @@ class _UploadImageFileState extends State<UploadImageFile> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             RaisedButton(
-              onPressed: () => {
-                Navigator.push(
+              onPressed: () {
+                uploadPic(context);
+
+                return Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => AboutProject(widget._eventModelObject, widget.currentUser))
-                )
+                );
               },
               color: Colors.green[200],
               splashColor: Colors.green[600],

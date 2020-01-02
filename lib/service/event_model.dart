@@ -63,6 +63,7 @@ class EventModel {
     "likes": this.likes ?? 0, 
     "dislikes": this.dislikes ?? 0, 
     "comments_amt": this.comments_amt ?? 0,
+    "photo": this.photo,
     "supplies": this.supplies
   };
 }

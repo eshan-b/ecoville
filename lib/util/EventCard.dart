@@ -129,7 +129,7 @@ class _EventCardState extends State<EventCard> {
       ],
 
       image: DecorationImage(
-        image: AssetImage("lib/StockImages/Mountain1.jpg"), // TBD: change it to uploaded image
+        image: widget.event.photo != null ? NetworkImage(widget.event.photo) : AssetImage("lib/StockImages/Mountain1.jpg"), // TBD: change it to uploaded image
         fit: BoxFit.cover,
       ),
     ),

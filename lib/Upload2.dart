@@ -6,23 +6,24 @@ import 'dart:async';
 import 'package:flutter_rounded_date_picker/rounded_picker.dart';
 import 'package:intl/intl.dart';
 
-class aboutProject extends StatefulWidget {
+class AboutProject extends StatefulWidget {
   var _eventModelObject;
-  aboutProject(this._eventModelObject);
+  final currentUser;
+  AboutProject(this._eventModelObject, this.currentUser);
 
   @override
-  _aboutProjectState createState() => _aboutProjectState();
+  _AboutProjectState createState() => _AboutProjectState();
 }
 
-class _aboutProjectState extends State<aboutProject> {
+class _AboutProjectState extends State<AboutProject> {
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
   
   final timeFormatter = DateFormat.jm();
   var formatter = DateFormat("MM/dd/yyyy"); //date Formatter
-  var time12Hour;
+  String time12Hour;
 
-  _aboutProjectState() {
+  _AboutProjectState() {
     time12Hour = timeFormatter.format(DateTime.now());
   }
 
@@ -66,8 +67,19 @@ class _aboutProjectState extends State<aboutProject> {
   }
 
   final eventNameController = TextEditingController();
-
   final teamSizeController = TextEditingController();
+  /*Pretend there are two more controllers here*/
+  /*The other controllers are actually variables*/ 
+  //TBD if want remember what user chose for date and time
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget._eventModelObject != null) {
+      eventNameController.text = widget._eventModelObject.event_name;
+      teamSizeController.text = widget._eventModelObject.team_size;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +157,7 @@ class _aboutProjectState extends State<aboutProject> {
                     )
                   ),
 
-                  Text("   Time Selected:  ${time12Hour}")
+                  Text("   Time Selected:  $time12Hour")
                 ],
               )
             ),
@@ -173,11 +185,16 @@ class _aboutProjectState extends State<aboutProject> {
             SizedBox(height: 20),
 
             RaisedButton(
-              onPressed: () => {
-                Navigator.push(
+              onPressed: () {
+                widget._eventModelObject.event_name = eventNameController.text;
+                widget._eventModelObject.team_size = teamSizeController.text;
+                widget._eventModelObject.event_date = formatter.format(_date);
+                widget._eventModelObject.event_time = time12Hour;
+
+                return Navigator.push(
                   context, 
-                  MaterialPageRoute(builder: (context) => AddRemoveListView(widget._eventModelObject))
-                )
+                  MaterialPageRoute(builder: (context) => AddRemoveListView(widget._eventModelObject, widget.currentUser))
+                );
               },
 
               color: Colors.green[200],

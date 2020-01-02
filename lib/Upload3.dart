@@ -4,7 +4,8 @@ import 'dart:io';
 
 class AddRemoveListView extends StatefulWidget {
   var _eventModelObject;
-  AddRemoveListView(this._eventModelObject);
+  final currentUser;
+  AddRemoveListView(this._eventModelObject, this.currentUser);
 
   @override
   _AddRemoveListViewState createState() => _AddRemoveListViewState();
@@ -121,11 +122,13 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
           ),
 
           RaisedButton(
-            onPressed: () => {
-              Navigator.push(
+            onPressed: () {
+              widget._eventModelObject.supplies = _listViewData;
+
+              return Navigator.push(
                 context, 
-                MaterialPageRoute(builder: (context) => enterLocation(widget._eventModelObject))
-              )
+                MaterialPageRoute(builder: (context) => EnterLocation(widget._eventModelObject, widget.currentUser))
+              );
             },
 
             color: Colors.green[200],

@@ -3,15 +3,20 @@ import 'dart:io';
 import 'dart:async';
 import 'package:place_picker/place_picker.dart';
 
-class enterLocation extends StatefulWidget {
+import 'HomeScreen.dart';
+import 'service/event_model.dart';
+import 'service/event_crud.dart';
+
+class EnterLocation extends StatefulWidget {
   var _eventModelObject;
-  enterLocation(this._eventModelObject);
+  final currentUser;
+  EnterLocation(this._eventModelObject, this.currentUser);
 
   @override
-  _enterLocationState createState() => _enterLocationState();
+  _EnterLocationState createState() => _EnterLocationState();
 }
 
-class _enterLocationState extends State<enterLocation> {
+class _EnterLocationState extends State<EnterLocation> {
   /*void showPlacePicker() async {
     var customLocation; //will fix later
         LocationResult result = await Navigator.of(context).push(
@@ -29,6 +34,20 @@ class _enterLocationState extends State<enterLocation> {
 
   final eventLocationController = TextEditingController();
 
+  Future<void> _createEvent(BuildContext context) async {
+    widget._eventModelObject.location = eventLocationController.text;
+    widget._eventModelObject.lead_user = widget.currentUser;
+    print(widget._eventModelObject.toJson());
+    //if (widget._eventModelObject == null) {
+      /*Scaffold.of(context)
+        .showSnackBar(SnackBar(content: Text('Processing...')));*/
+      await EventService().create(widget._eventModelObject);
+    /*} else {
+      Scaffold.of(context)
+        .showSnackBar(SnackBar(content: Text('Event already exists')));
+    }*/
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,24 +55,50 @@ class _enterLocationState extends State<enterLocation> {
         title: Text('Event Location'),
       ),
 
-      body: Container(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(15, 8, 8, 8),
-          child: TextFormField(
-            controller: eventLocationController,
+      body: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(15, 8, 8, 8),
+            child: TextFormField(
+              controller: eventLocationController,
 
-            decoration: InputDecoration(
-              labelText: 'Where does your project take place?'
+              decoration: InputDecoration(
+                labelText: 'Where does your project take place?'
+              ),
+
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter some text';
+                }
+                return null;
+              },
             ),
-
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
           ),
-        ),
+
+          SizedBox(height: 20),
+
+          RaisedButton(
+            onPressed: () async {
+              await _createEvent(context);
+
+              return Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen(currentUser: widget.currentUser))
+              );
+            },
+            color: Colors.green[200],
+            splashColor: Colors.green[600],
+            padding: EdgeInsets.all(10),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+            highlightElevation: 1,
+            child: Row(
+              children: <Widget>[
+                Text("Submit"),
+                Icon(Icons.done)
+              ]
+            )
+          ),
+        ] 
       )
     );
   }

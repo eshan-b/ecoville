@@ -9,7 +9,8 @@ class EventService {
     QuerySnapshot query = await ref.where(fieldName, isEqualTo: fieldValue).getDocuments();
     List<EventModel> eventModels = query.documents
       .map(
-        (snapshot) => EventModel.fromJson(snapshot.documentID, snapshot.data))
+        (snapshot) => EventModel.fromJson(snapshot.documentID, snapshot.data)
+      )
       .toList();
     if (eventModels.length > 0) {
       return eventModels[0];

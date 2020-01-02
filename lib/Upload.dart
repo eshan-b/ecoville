@@ -9,11 +9,10 @@ import 'dart:io';
 
 import 'Upload2.dart';
 
-bool isNextButtonEnabled;
-
 class UploadImage extends StatefulWidget {
   final currentUser;
   UploadImage({@required this.currentUser});
+
   @override
   _UploadImageState createState() => _UploadImageState();
 }
@@ -21,12 +20,6 @@ class UploadImage extends StatefulWidget {
 class _UploadImageState extends State<UploadImage> {
   /******* Event Object *******/ //Used throughout 4 screens
   var eventModelObject = EventModel();
-
-  @override
-  void initState() {
-    super.initState();
-    isNextButtonEnabled = false; //we start with false
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +31,7 @@ class _UploadImageState extends State<UploadImage> {
             Text("Upload Image"),
 
             RaisedButton(
-              onPressed: isNextButtonEnabled == false ? null : () => {
+              onPressed: () => {
                 Navigator.push(
                   context, 
                   MaterialPageRoute(builder: (context) => HomeScreen(currentUser: widget.currentUser)) //Just to pass currentUser back to Home Page
@@ -64,7 +57,7 @@ class _UploadImageState extends State<UploadImage> {
         ),
       ),
 
-      body: UploadImageFile(eventModelObject)
+      body: UploadImageFile(eventModelObject, widget.currentUser)
     );
   }
 }
@@ -75,9 +68,10 @@ class UploadImageFile extends StatefulWidget {
   _UploadImageFileState createState() => _UploadImageFileState();
 
   var _eventModelObject;
+  final currentUser;
 
   /*** Constructor GANG ***/ //for passing my object down here
-  UploadImageFile(this._eventModelObject);
+  UploadImageFile(this._eventModelObject, this.currentUser);
 }
 
 class _UploadImageFileState extends State<UploadImageFile> {
@@ -94,7 +88,6 @@ class _UploadImageFileState extends State<UploadImageFile> {
 
     setState(() {
       _image = image;
-      _image == null ? isNextButtonEnabled = false : isNextButtonEnabled = true;
     });
 
     widget._eventModelObject.photo = _image;
@@ -169,21 +162,29 @@ class _UploadImageFileState extends State<UploadImageFile> {
         SizedBox(height: 20),
 
         _image == null ? Container() :
-        RaisedButton(
-          onPressed: () => {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => aboutProject(widget._eventModelObject))
-            )
-          },
-          color: Colors.green[200],
-          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-          child: Row(
-            children: <Widget>[
-              Icon(Icons.arrow_forward),
-              Text(" Next")
-            ]
-          )
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            RaisedButton(
+              onPressed: () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AboutProject(widget._eventModelObject, widget.currentUser))
+                )
+              },
+              color: Colors.green[200],
+              splashColor: Colors.green[600],
+              padding: EdgeInsets.all(10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+              highlightElevation: 1,
+              child: Row(
+                children: <Widget>[
+                  Text("Next"),
+                  Icon(Icons.arrow_forward)
+                ]
+              )
+            ),
+          ],
         ),
         
       ],

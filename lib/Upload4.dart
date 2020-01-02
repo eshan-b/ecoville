@@ -4,12 +4,13 @@ import 'dart:async';
 import 'package:place_picker/place_picker.dart';
 
 import 'HomeScreen.dart';
-import 'service/event_model.dart';
 import 'service/event_crud.dart';
+import 'service/event_model.dart';
+import 'service/user_model.dart';
 
 class EnterLocation extends StatefulWidget {
-  var _eventModelObject;
-  final currentUser;
+  EventModel _eventModelObject;
+  final UserModel currentUser;
   EnterLocation(this._eventModelObject, this.currentUser);
 
   @override
@@ -36,7 +37,7 @@ class _EnterLocationState extends State<EnterLocation> {
 
   Future<void> _createEvent(BuildContext context) async {
     widget._eventModelObject.location = eventLocationController.text;
-    widget._eventModelObject.lead_user = widget.currentUser;
+    widget._eventModelObject.lead_user = widget.currentUser.documentID;
     print(widget._eventModelObject.toJson());
     //if (widget._eventModelObject == null) {
       /*Scaffold.of(context)

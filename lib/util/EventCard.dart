@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import '../service/event_model.dart';
+import '../service/user_crud.dart';
+import '../service/user_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
 class EventCard extends StatefulWidget {
-  final event;
-  final currentUser;
+  final EventModel event;
+  final UserModel currentUser;
 
   const EventCard({
     Key key,
@@ -17,30 +21,28 @@ class EventCard extends StatefulWidget {
 }
 
 class _EventCardState extends State<EventCard> {
-  var leadUser;
+  UserModel leadUser;
 
   @override
   void initState() {
     super.initState();
-    print("initState lead user...");
     findLeadUser();
-    print("...initState lead user: ${leadUser}");
   }
-  
-  Future findLeadUser() async {
-    print("Retrieving lead user...");
-    QuerySnapshot snapshot = await Firestore.instance.collection("users").where("user_id", isEqualTo: widget.event['lead_user']).getDocuments();
-    if (snapshot.documents.length > 0) {
-      this.leadUser = snapshot.documents.first;
-    } else {
-      throw Exception("Error: lead_user is invalid in the event");
+
+  findLeadUser() async {
+    print("Event in the eventCard: ${widget.event.toJson()}");
+    UserModel user =  await UserService().find(widget.event.lead_user);
+    if (mounted) {
+      setState(() {
+        this.leadUser = user;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[
+      children: <Widget>[ 
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
           child: Container(
@@ -95,19 +97,19 @@ class _EventCardState extends State<EventCard> {
           child: Image(
             height: 50,
             width: 50,
-            image: (leadUser != null && leadUser['photoUrl'] != null) ? NetworkImage(leadUser['photoUrl']) : AssetImage('lib/StockImages/ChillingFingersIcon.jpg'),
+            image: (leadUser != null && leadUser.photo_url != null) ? NetworkImage(leadUser.photo_url) : AssetImage('lib/StockImages/ChillingFingersIcon.jpg'),
             fit: BoxFit.cover
           ),
         ),
       ),
     ),
     title: Text(
-      widget.event['title'],
+      widget.event.event_name,
       style: TextStyle(
         fontWeight: FontWeight.w700,
       )
     ),
-    subtitle: Text(leadUser != null ? "${leadUser['displayName']} | ${widget.event['posted_date']}" : "Invalid User | ${widget.event['posted_date']}"),
+    subtitle: Text(leadUser != null ? "${leadUser.display_name} | ${DateFormat.yMd().add_jm().format(widget.event.posted_date.toDate())}" : "Invalid User | ${DateFormat.yMd().add_jm().format(widget.event.posted_date.toDate())}"),
     trailing: Icon(Icons.more_vert),
   );
         
@@ -148,7 +150,7 @@ class _EventCardState extends State<EventCard> {
                   onPressed: () => print('Like post')
                 ),
                 Text(
-                  "${widget.event['likes']}",
+                  "${widget.event.likes}",
                   style: TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.w600
@@ -167,7 +169,7 @@ class _EventCardState extends State<EventCard> {
                   onPressed: () => print('Dislike post')
                 ),
                 Text(
-                  "${widget.event['dislikes']}",
+                  "${widget.event.dislikes}",
                   style: TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.w600
@@ -178,20 +180,22 @@ class _EventCardState extends State<EventCard> {
 
             SizedBox(width: 20),
 
-            Row(children: <Widget>[
-              IconButton(
-                icon: Icon(Icons.chat),
-                iconSize: 30.0,
-                onPressed: () => print('Comment post')
-              ),
-              Text(
-                "${widget.event['comments_amt']}",
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.w600
+            Row(
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.chat),
+                  iconSize: 30.0,
+                  onPressed: () => print('Comment post')
+                ),
+                Text(
+                  "${widget.event.comments_amt}",
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w600
+                  )
                 )
-              )
-            ])
+              ]
+            )
           ],
         )
       ],

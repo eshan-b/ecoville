@@ -37,8 +37,8 @@ class EventService {
     await ref.document(documentID).delete();
   }
 
-  Stream<List<EventModel>> list({var limit = 10, var lastKey}) {
-    return ref.limit(limit).snapshots().map((QuerySnapshot query) => query
+  Stream<List<EventModel>> list() {
+    return ref.orderBy('posted_date').snapshots().map((QuerySnapshot query) => query
       .documents
       .map((snapshot) => EventModel.fromJson(snapshot.documentID, snapshot.data))
       .toList()

@@ -1,4 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecoville/service/event_crud.dart';
+import 'package:ecoville/service/event_model.dart';
+import 'service/user_model.dart';
 
 import 'EventDetail.dart';
 import 'util/EventCard.dart';
@@ -7,7 +10,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'dart:async';
 
 class FeedWidget extends StatefulWidget {
-  var currentUser;
+  final UserModel currentUser;
 
   FeedWidget(this.currentUser);
 
@@ -17,19 +20,24 @@ class FeedWidget extends StatefulWidget {
 }
 
 class _FeedWidgetState extends State<FeedWidget> {
-  CollectionReference events = Firestore.instance.collection("events");
+  Stream<List<EventModel>> events;
 
   @override
+  void initState() {
+    super.initState();
+    this.events = EventService().list();
+  }
+  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: events.snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    return StreamBuilder<List<EventModel>>(
+      stream: events,
+      builder: (BuildContext context, AsyncSnapshot<List<EventModel>> snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
             physics: AlwaysScrollableScrollPhysics(),
-            itemCount: snapshot.data.documents.length,
+            itemCount: snapshot.data.length,
             itemBuilder: (context, index) {
-              var event = snapshot.data.documents[index];
+              EventModel event = snapshot.data[index];
               return InkWell(
                 onTap: () => {
                   Navigator.push(

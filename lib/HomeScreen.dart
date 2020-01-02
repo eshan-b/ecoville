@@ -1,10 +1,11 @@
 import 'package:ecoville/Feed.dart';
 import 'package:flutter/material.dart';
 import 'Upload.dart';
+import 'service/user_model.dart';
 import 'util/color_utils.dart' show HexColor;
 
 class HomeScreen extends StatefulWidget {
-  final currentUser;
+  final UserModel currentUser;
   HomeScreen({@required this.currentUser});
 
   @override

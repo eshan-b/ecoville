@@ -6,6 +6,8 @@ import 'HomeScreen.dart';
 import 'dart:async';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'service/user_crud.dart';
+import 'service/user_model.dart';
 
 //keytool -list -v -keystore "%USERPROFILE%\.android\debug.keystore" -alias androiddebugkey
 
@@ -158,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<FirebaseUser> login() async {
+  Future<void> login() async {
     try{
       final GoogleSignInAccount _currentUser = await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleAuth = await _currentUser.authentication;
@@ -174,20 +176,18 @@ class _LoginScreenState extends State<LoginScreen> {
           isLoading = true;
         });
 
-        CollectionReference users = Firestore.instance.collection("users");
+        UserModel dbUser = await UserService().findByField(fieldName: "user_id", fieldValue:_currentUser.id);
 
-        var snapshot = await users.where("user_id", isEqualTo: _currentUser.id).getDocuments();
-        var dbUser;
-        if (snapshot.documents.length == 0) {
-           dbUser = await users.add({
-            "displayName": _currentUser.displayName,
-            "photoUrl": _currentUser.photoUrl,
-            "user_id": _currentUser.id,
-            "email": _currentUser.email
-          });
-          dbUser = await dbUser.get();
+        if (dbUser == null) {
+           dbUser = UserModel(
+             display_name: _currentUser.displayName,
+             photo_url: _currentUser.photoUrl,
+             user_id: _currentUser.id,
+             email: _currentUser.email
+           );
+          await UserService().create(dbUser);
         } else {
-          dbUser = snapshot.documents.first;
+          print('User ${dbUser.display_name} already exists');
         }
         
         setState(() {
@@ -200,8 +200,6 @@ class _LoginScreenState extends State<LoginScreen> {
           )
         );
       }
-      return user;
-
     } catch(error) {
       print(error);
     }

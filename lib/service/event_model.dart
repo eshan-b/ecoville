@@ -2,7 +2,6 @@ class EventModel {
   var documentID;
   var event_id;
   var team_size;
-  var user_id;
   var lead_user;
   var event_date;
   var event_time;
@@ -19,7 +18,6 @@ class EventModel {
     this.documentID,
     this.event_id,
     this.team_size,
-    this.user_id,
     this.lead_user,
     this.event_date,
     this.event_time,
@@ -34,11 +32,11 @@ class EventModel {
   });
 
   factory EventModel.fromJson(var documentID, Map<String, dynamic> json) {
+    
     return EventModel(
       documentID: documentID,
       event_id: json['event_id'],
       team_size: json['team_size'],
-      user_id: json['user_id'],
       lead_user: json['lead_user'],
       event_date: json['event_date'],
       event_time: json['event_time'],
@@ -56,7 +54,7 @@ class EventModel {
   Map<String, dynamic> toJson() => {
     "event_id": this.event_id, 
     "team_size": this.team_size, 
-    "lead_user": this.user_id, 
+    "lead_user": this.lead_user, 
     "event_date": this.event_date,
     "event_time": this.event_time, 
     "event_name": this.event_name, 

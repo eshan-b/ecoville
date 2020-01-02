@@ -4,6 +4,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:io';
 
+import 'service/event_model.dart';
+import 'service/user_crud.dart';
+import 'service/user_model.dart';
 import 'util/EventCard.dart';
 
 import 'package:expand_widget/expand_widget.dart'; //for expand text (readMore)
@@ -11,8 +14,8 @@ import 'package:expand_widget/expand_widget.dart'; //for expand text (readMore)
 import 'util/read_more_text.dart';
 
 class EventDetail extends StatefulWidget {
-  final currentUser;
-  final event;
+  final UserModel currentUser;
+  final EventModel event;
 
   EventDetail({this.currentUser, this.event});
 
@@ -21,8 +24,7 @@ class EventDetail extends StatefulWidget {
 }
 
 class _EventDetailState extends State<EventDetail> {
-  Query get comments => Firestore.instance.collection("comments").where("event_id", isEqualTo: widget.event['event_id']);
-  Query get supplies => Firestore.instance.collection("supplies").where("event_id", isEqualTo: widget.event['event_id']);
+  Query get comments => Firestore.instance.collection("comments").where("event_id", isEqualTo: widget.event.documentID);
   
   @override
   void initState() {
@@ -106,27 +108,24 @@ class _EventDetailState extends State<EventDetail> {
       }
   );
 
+  findPostedByUser(var userId) async {
+    return await UserService().find(userId);
+  }
   Widget commentTile(var comment) {
-    var postedByUser = findUser(comment);
-    return FutureBuilder<dynamic> (
-      future: postedByUser,
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshotUser) {
-        if (!snapshotUser.hasData) return Text("Loading");
-        var user = snapshotUser.data;
-        print('CommentTile postedBy: $user');
-        return ListTile(
+    UserModel user = findPostedByUser(comment['user_id']);
+    return ListTile(
           leading: CircleAvatar(
               child: ClipOval(
                 child: Image(
                   height: 50.0,
                   width: 50.0,
-                  image: (user != null && user['photoUrl'] != null) ? NetworkImage(user['photoUrl']) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
+                  image: (user != null && user.photo_url != null) ? NetworkImage(user.photo_url) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
           title: Text(
-            user != null && user['displayName'] != null ? user['displayName'] : "Invalid User",
+            user != null && user.display_name != null ? user.display_name : "Invalid User",
             style: TextStyle(
               fontWeight: FontWeight.bold,
             ),
@@ -140,26 +139,12 @@ class _EventDetailState extends State<EventDetail> {
             onPressed: () => print('Like comment'),
           ),
         );
-      }
-    );
   }
-
-  findUser(var comment) async {
-    return await _findPostedBy(comment);
-  }
-  Future _findPostedBy(var comment) async {
-    print("Retrieving posted by...");
-    QuerySnapshot snapshot = await Firestore.instance.collection("users").where("user_id", isEqualTo: comment['posted_by']).getDocuments();
-    if (snapshot.documents.length > 0) {
-      return snapshot.documents.first;
-    } else {
-      throw Exception("Error: posted_by user is invalid in the event");
-    }
-  }
+  
 }
 
 class BottomCommentBar extends StatelessWidget {
-  final currentUser;
+  final UserModel currentUser;
 
   const BottomCommentBar({
     Key key,
@@ -221,7 +206,7 @@ class BottomCommentBar extends StatelessWidget {
                     child: Image(
                       height: 48.0,
                       width: 48.0,
-                      image: currentUser['photoUrl'] != null ? NetworkImage(currentUser['photoUrl']) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
+                      image: currentUser.photo_url != null ? NetworkImage(currentUser.photo_url) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -252,7 +237,7 @@ class BottomCommentBar extends StatelessWidget {
 }
 
 class CommentsCard extends StatefulWidget {
-  final event;
+  final EventModel event;
   final CollectionReference comments;
 
   const CommentsCard({
@@ -331,7 +316,7 @@ class BuildComment extends StatefulWidget {
 }
 
 class _BuildCommentState extends State<BuildComment> {
-  var postedByUser; 
+  UserModel postedByUser; 
 
   @override
   void initState() {
@@ -340,13 +325,7 @@ class _BuildCommentState extends State<BuildComment> {
   }
 
   Future findPostedBy() async {
-    print("Retrieving posted by...");
-    QuerySnapshot snapshot = await Firestore.instance.collection("users").where("user_id", isEqualTo: postedByUser).getDocuments();
-    if (snapshot.documents.length > 0) {
-      postedByUser= snapshot.documents.first;
-    } else {
-      throw Exception("Error: posted_by user is invalid in the event");
-    }
+    this.postedByUser = await UserService().find(widget.comment['user_id']);
   }
 
   @override
@@ -373,14 +352,14 @@ class _BuildCommentState extends State<BuildComment> {
               child: Image(
                 height: 50.0,
                 width: 50.0,
-                image: (postedByUser != null && postedByUser['photoUrl'] != null) ? NetworkImage(postedByUser['photoUrl']) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
+                image: (postedByUser != null && postedByUser.photo_url != null) ? NetworkImage(postedByUser.photo_url) : AssetImage('lib/StockImages/Tree_User_Icon.png'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
         ),
         title: Text(
-          postedByUser != null ? postedByUser['displayName'] : "Invalid User",
+          postedByUser != null ? postedByUser.display_name : "Invalid User",
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),

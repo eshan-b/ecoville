@@ -1,5 +1,6 @@
 import 'package:ecoville/Upload3.dart';
-import 'package:ecoville/service/event_model.dart';
+import 'service/event_model.dart';
+import 'service/user_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
@@ -7,8 +8,8 @@ import 'package:flutter_rounded_date_picker/rounded_picker.dart';
 import 'package:intl/intl.dart';
 
 class AboutProject extends StatefulWidget {
-  var _eventModelObject;
-  final currentUser;
+  EventModel _eventModelObject;
+  final UserModel currentUser;
   AboutProject(this._eventModelObject, this.currentUser);
 
   @override
@@ -190,6 +191,8 @@ class _AboutProjectState extends State<AboutProject> {
                 widget._eventModelObject.team_size = teamSizeController.text;
                 widget._eventModelObject.event_date = formatter.format(_date);
                 widget._eventModelObject.event_time = time12Hour;
+                //widget._eventModelObject.posted_date = DateFormat.yMd().add_jm().format(DateTime.now());
+                widget._eventModelObject.posted_date = DateTime.now();
 
                 return Navigator.push(
                   context, 

@@ -25,12 +25,12 @@ class UserService {
     return UserModel.fromJson(snapshot.documentID, snapshot.data);
   }
 
-  Future<void> create(UserModel eventModel) async {
-    await ref.add(eventModel.toJson());
+  Future<void> create(UserModel userModel) async {
+    await ref.add(userModel.toJson());
   }
 
-  Future<void> update(var documentID, UserModel eventModel) async {
-    await ref.document(documentID).updateData(eventModel.toJson());
+  Future<void> update(var documentID, UserModel userModel) async {
+    await ref.document(documentID).updateData(userModel.toJson());
   }
 
   Future<void> delete(var documentID) async {

@@ -2,6 +2,7 @@ import 'package:ecoville/HomeScreen.dart';
 import 'package:ecoville/service/event_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 
@@ -94,7 +95,17 @@ class _UploadImageFileState extends State<UploadImageFile> {
   }
 
   Future uploadPic(BuildContext context) async{
-    String fileName = basename(_image.path);
+    var timestamp = DateTime.now().millisecondsSinceEpoch;
+
+    var pathname = basename(_image.path);
+    print("pathname: $pathname");
+    var extensionIndex = pathname.lastIndexOf(".");
+    var fileExt = pathname.substring(extensionIndex);
+    print("extension: $fileExt");
+
+    String fileName = "$timestamp$fileExt";
+    print("fileName: $fileName");
+
     StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;

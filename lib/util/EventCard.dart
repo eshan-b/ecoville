@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecoville/service/event_crud.dart';
 import 'package:intl/intl.dart';
 import '../service/event_model.dart';
 import '../service/user_crud.dart';
@@ -26,8 +27,8 @@ class _EventCardState extends State<EventCard> {
   @override
   void initState() {
     super.initState();
-    //this.leadUser = widget.event.lead_user;
-    findLeadUser();
+    this.leadUser = widget.event.user;
+    //findLeadUser();
   }
 
   findLeadUser() async {
@@ -167,7 +168,10 @@ class _EventCardState extends State<EventCard> {
                 IconButton(
                   icon: Icon(Icons.thumb_down),
                   iconSize: 30,
-                  onPressed: () => print('Dislike post')
+                  onPressed: () async {
+                    //widget.event.dislikes++;
+                    //await EventService().update(widget.event.documentID, widget.event);
+                  }
                 ),
                 Text(
                   "${widget.event.dislikes}",

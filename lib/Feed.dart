@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecoville/service/event_crud.dart';
 import 'package:ecoville/service/event_model.dart';
+import 'package:ecoville/service/user_crud.dart';
 import 'service/user_model.dart';
 
 import 'EventDetail.dart';
@@ -27,6 +28,16 @@ class _FeedWidgetState extends State<FeedWidget> {
     super.initState();
     this.events = EventService().list();
   }
+
+  findLeadUser(EventModel event) async {
+    if (event.user == null) {
+      UserModel user =  await UserService().find(event.lead_user);
+      setState(() {
+        event.user = user;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<EventModel>>(
@@ -38,6 +49,7 @@ class _FeedWidgetState extends State<FeedWidget> {
             itemCount: snapshot.data.length,
             itemBuilder: (context, index) {
               EventModel event = snapshot.data[index];
+              findLeadUser(event);
               return InkWell(
                 onTap: () => {
                   Navigator.push(

@@ -2,7 +2,6 @@ import 'user_model.dart';
 
 class EventModel {
   var documentID;
-  var event_id;
   var team_size;
   var lead_user;
   var event_date;
@@ -15,10 +14,10 @@ class EventModel {
   int comments_amt = 0;
   var photo;
   var supplies;
+  UserModel user;
 
   EventModel({
     this.documentID,
-    this.event_id,
     this.team_size,
     this.lead_user,
     this.event_date,
@@ -34,10 +33,8 @@ class EventModel {
   });
 
   factory EventModel.fromJson(var documentID, Map<String, dynamic> json) {
-    
     return EventModel(
       documentID: documentID,
-      event_id: json['event_id'],
       team_size: json['team_size'],
       lead_user: json['lead_user'],
       event_date: json['event_date'],
@@ -54,7 +51,6 @@ class EventModel {
   }
 
   Map<String, dynamic> toJson() => {
-    "event_id": this.event_id, 
     "team_size": this.team_size, 
     "lead_user": this.lead_user, 
     "event_date": this.event_date,

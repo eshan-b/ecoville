@@ -1,4 +1,6 @@
+import 'package:ecoville/service/comment_crud.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'service/comment_model.dart';
 import 'service/user_crud.dart';
@@ -6,10 +8,12 @@ import 'service/user_model.dart';
 
 class CommentCard extends StatefulWidget {
   final CommentModel comment;
+  final UserModel currentUser;
   
   const CommentCard({
     Key key,
-    @required this.comment
+    @required this.comment,
+    this.currentUser
   }) : super(key: key);
 
   @override
@@ -37,8 +41,7 @@ class _CommentCardState extends State<CommentCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 120,
-      padding: EdgeInsets.all(10.0),
+      padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
       child: ListTile(
         leading: Container(
           width: 50.0,
@@ -70,8 +73,19 @@ class _CommentCardState extends State<CommentCard> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        subtitle: Text(widget.comment.message)
+        subtitle: Text(widget.comment.message),
+        trailing: (widget.currentUser.documentID == widget.comment.posted_by) ? IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: () async {
+            await CommentService(widget.comment.event_id).delete(widget.comment.documentID);
+          },
+        ) :
+        Container()
       )
     );
   }
 }
+
+/*Text(
+  DateFormat.yMd().format(widget.comment.posted_date.toDate())
+),*/

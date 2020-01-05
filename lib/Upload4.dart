@@ -77,6 +77,12 @@ class _EnterLocationState extends State<EnterLocation> {
           ),
 
           SizedBox(height: 20),
+          /*Expanded(
+                      child: PlacePicker(
+                  "AIzaSyD4h3fys-6wyZKeKHsYccFmyN6qKbG5pjA",
+                  //displayLocation: customLocation,
+              ),
+          ),*/
 
           RaisedButton(
             onPressed: () async {

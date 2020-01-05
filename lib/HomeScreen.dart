@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'lib/StockImages/Ecoville_WhiteCropped.png',
       scale: 5,
     ),
-    backgroundColor: HexColor("#4C9A2A"),
+    backgroundColor: HexColor("#4C9A2A")
   );
 
   Widget get floatingActionButton => FloatingActionButton(

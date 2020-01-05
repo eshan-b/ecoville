@@ -4,11 +4,17 @@ import 'CommentCard.dart';
 import 'service/comment_crud.dart';
 import 'service/comment_model.dart';
 import 'service/event_model.dart';
+import 'service/user_model.dart';
 
 class CommentCardList extends StatefulWidget {
   final EventModel event;
+  final UserModel currentUser;
 
-  const CommentCardList({Key key, this.event}) : super(key: key);
+  const CommentCardList({
+    Key key, 
+    this.event, 
+    this.currentUser
+  }) : super(key: key);
   
   @override
   _CommentCardListState createState() => _CommentCardListState();
@@ -37,7 +43,7 @@ class _CommentCardListState extends State<CommentCardList> {
           physics: NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             CommentModel comment = snapshot.data[index];
-            return CommentCard(comment: comment);
+            return CommentCard(comment: comment, currentUser: widget.currentUser);
           }
         );
       } else if(snapshot.hasError) {

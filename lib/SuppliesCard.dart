@@ -15,17 +15,16 @@ class SuppliesCard extends StatefulWidget {
 }
 
 class _SuppliesCardState extends State<SuppliesCard> {
-
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-                primary: false,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: widget.event.supplies.length,
-                itemBuilder: (context, index) {
-                  return Text(widget.event.supplies[index].toString());
-                }
-              );
+      primary: false,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: widget.event.supplies.length,
+      itemBuilder: (context, index) {
+        return Text(widget.event.supplies[index].toString());
+      }
+    );
   }
 }

@@ -1,3 +1,5 @@
+import 'user_model.dart';
+
 class EventModel {
   var documentID;
   var event_id;

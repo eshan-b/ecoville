@@ -26,13 +26,14 @@ class _EventCardState extends State<EventCard> {
   @override
   void initState() {
     super.initState();
+    //this.leadUser = widget.event.lead_user;
     findLeadUser();
   }
 
   findLeadUser() async {
-    print("Event in the eventCard: ${widget.event.toJson()}");
-    UserModel user =  await UserService().find(widget.event.lead_user);
-    if (mounted) {
+    if (mounted && this.leadUser == null) {
+      print("Finding leadUser in the eventCard for event: ${widget.event.toJson()}");
+      UserModel user =  await UserService().find(widget.event.lead_user);
       setState(() {
         this.leadUser = user;
       });

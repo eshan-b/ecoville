@@ -11,7 +11,6 @@ class CommentService {
     this.ref = Firestore.instance.collection("events").document(eventId).collection("comments");
   }
 
-
   Future<CommentModel> findByField({var fieldName, var fieldValue}) async {
     QuerySnapshot query = await ref.where(fieldName, isEqualTo: fieldValue).getDocuments();
     List<CommentModel> commentModels = query.documents

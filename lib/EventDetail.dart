@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 
 import 'CommentCardList.dart';
@@ -144,7 +145,7 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
     else if (selectedIndex == 2) 
       return SuppliesCard(event: widget.event);
     else 
-      return Text("Tab 4");
+      return buildLocation();
   }
 
   Widget buildAbout() {
@@ -184,6 +185,17 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
         ),
 
         title:Text(leadUser.display_name)
+      )
+    );
+  }
+
+  Widget buildLocation() {
+    return Expanded(
+      child: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: LatLng(130.0,97.0), //LatLng(widget.event.location.data.latitude, widget.event.location.data.longitude),
+          zoom: 15.0
+        ),
       )
     );
   }

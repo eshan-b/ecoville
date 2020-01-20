@@ -29,12 +29,20 @@ class _FeedWidgetState extends State<FeedWidget> {
     this.events = EventService().list();
   }
 
+  /*
+   * Since Dart await does not always wait, this is a workaround.
+   * 1. Change event_model to have Future<UserModel> instead of UserModel
+   * 2. The event.user which we thought would be resolved after await but it actually takes time to resolve.
+   * 3. Set event.user = Future<UserModel> and let Event Card and Event Details await again until it is resolved.
+   */
+  Future<UserModel> _findLeadUser(EventModel event) async {
+    UserModel user = await UserService().find(event.lead_user);
+    return user;
+  }
+
   findLeadUser(EventModel event) async {
     if (event.user == null) {
-      UserModel user =  await UserService().find(event.lead_user);
-      setState(() {
-        event.user = user;
-      });
+      event.user = _findLeadUser(event);
     }
   }
 

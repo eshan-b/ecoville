@@ -30,26 +30,26 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
   UserModel leadUser;
   Set<Marker> markers = Set<Marker>();
   LatLng location;
+  String address; //string version of address
+  Position _currentPosition;
+  double distanceInMeters;
+  double distanceInMiles;
   EventSignupModel currentSignUp;
   
   @override
   void initState() {
     super.initState();
     this.comments = CommentService(widget.event.documentID).list();
-    this.leadUser = widget.event.user;
-    //findLeadUser();
+    setLeadUser();
     this.getMarkers();
     findCurrentSignUp();
   }
 
-  findLeadUser() async {
-    print("Event in the eventCard: ${widget.event.toJson()}");
-    UserModel user =  await UserService().find(widget.event.lead_user);
-    if (mounted) {
-      setState(() {
-        this.leadUser = user;
-      });
-    }
+  setLeadUser() async {
+    UserModel user = await widget.event.user;
+    setState(() {
+      leadUser = user;
+    });
   }
 
   bool isSignedUp = false;
@@ -92,7 +92,7 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
           showIndexTab()
         ],
       ),
-      bottomNavigationBar: BottomCommentBar(currentUser: widget.currentUser, event: widget.event)
+      bottomNavigationBar: (selectedIndex == 1) ? BottomCommentBar(currentUser: widget.currentUser, event: widget.event) : Container(height: 0)
     );
   }
 
@@ -271,9 +271,22 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
     );
   }
 
+  setCurrentLocation() async {
+    final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+    _currentPosition = await geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+    print("Current Location: $_currentPosition");
+  }
+
+  setLocationBetween() async {
+    distanceInMeters = await Geolocator().distanceBetween(_currentPosition.latitude , _currentPosition.longitude, widget.event.location.latitude, widget.event.location.longitude);
+    print("Distance in meters: $distanceInMeters");
+    distanceInMiles = (distanceInMeters*0.000621371).roundToDouble();
+    print("Distance in miles: $distanceInMiles");
+  }
+
   getMarkers() async {
     this.location = LatLng(widget.event.location.latitude, widget.event.location.longitude);
-    String address;
+    
     List<Placemark> placemarks = await Geolocator().placemarkFromCoordinates(widget.event.location.latitude, widget.event.location.longitude);
     if (placemarks != null) {
       address = "${placemarks[0].name} ${placemarks[0].thoroughfare}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}";
@@ -283,25 +296,65 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
     final Marker marker = Marker(
       markerId: MarkerId("1"),
       position: this.location,
-      infoWindow: InfoWindow(title: address)
+      infoWindow: InfoWindow(title: address),
     );
 
     setState(() {
       this.markers.add(marker);  
     });
-    
+
+    await setCurrentLocation();
+    await setLocationBetween();
   }
 
   Widget buildLocation() {
     return Container(
       width: double.infinity,
       height: 300,
-      child: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: this.location,
-          zoom: 15.0
-        ),
-        markers: markers,
+      child: Stack(
+        children: <Widget> [
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: this.location,
+              zoom: 15.0
+            ),
+            markers: markers,
+          ),
+
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: Column( //Just put in a column because of MainAxisAlignment
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey[500],
+                          offset: Offset(0, 2),
+                          blurRadius: 6.0
+                        )
+                      ],
+                    ),
+                    height: 50,
+                    width: MediaQuery.of(context).size.width - 30,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget> [
+                        Text(address),
+                        Text('$distanceInMiles miles away from you')
+                      ]
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ]
       )
     );
   }

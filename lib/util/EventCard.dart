@@ -23,23 +23,22 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   UserModel leadUser;
+  
+  _EventCardState({this.leadUser});
 
   @override
   void initState() {
     super.initState();
-    this.leadUser = widget.event.user;
-    //findLeadUser();
+    setLeadUser();
   }
 
-  findLeadUser() async {
-    if (mounted && this.leadUser == null) {
-      print("Finding leadUser in the eventCard for event: ${widget.event.toJson()}");
-      UserModel user =  await UserService().find(widget.event.lead_user);
-      setState(() {
-        this.leadUser = user;
-      });
-    }
+  setLeadUser() async {
+    UserModel user = await widget.event.user;
+    setState(() {
+      leadUser = user;
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {

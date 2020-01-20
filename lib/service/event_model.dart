@@ -14,7 +14,7 @@ class EventModel {
   int comments_amt = 0;
   var photo;
   var supplies;
-  UserModel user;
+  Future<UserModel> user;
 
   EventModel({
     this.documentID,

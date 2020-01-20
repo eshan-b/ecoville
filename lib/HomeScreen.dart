@@ -1,6 +1,8 @@
 import 'package:ecoville/Feed.dart';
+import 'package:ecoville/service/event_model.dart';
 import 'package:flutter/material.dart';
 import 'Upload.dart';
+import 'Profile.dart';
 import 'service/user_model.dart';
 import 'util/color_utils.dart' show HexColor;
 
@@ -9,15 +11,23 @@ class HomeScreen extends StatefulWidget {
   HomeScreen({@required this.currentUser});
 
   @override
-  State<StatefulWidget> createState() => _HomeScreenState();
+  State<StatefulWidget> createState() => _HomeScreenState(this.currentUser);
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _selectedTab = 0;
+  List<Widget> _pageOptions = []; //set blank
+
+  _HomeScreenState(UserModel currentUser) {
+    _pageOptions.add(FeedWidget(currentUser));
+    _pageOptions.add(ProfilePage(currentUser: currentUser));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar,
-      body: FeedWidget(widget.currentUser),
+      body: _pageOptions[_selectedTab],
       floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: bottomTing,
@@ -43,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
     onPressed: () => {
       Navigator.push(
         context, 
-        MaterialPageRoute(builder: (context) => UploadImage(currentUser: widget.currentUser))
+        MaterialPageRoute(builder: (context) => UploadImage(currentUser: widget.currentUser, event: EventModel()))
       )
     },
   );
@@ -53,15 +63,16 @@ class _HomeScreenState extends State<HomeScreen> {
     notchMargin: 4.0,
     clipBehavior: Clip.antiAlias,
     child: BottomNavigationBar(
-      items: <BottomNavigationBarItem>[
+      currentIndex: _selectedTab,     
+      onTap: (int index) {
+        setState(() {
+          _selectedTab = index;
+        });
+      },
+      items: <BottomNavigationBarItem> [
         BottomNavigationBarItem(
           title: Text('Feed'),
           icon: Icon(Icons.home, color: HexColor("#358856")),
-        ),
-
-        BottomNavigationBarItem(
-          title: Text('Add New Post'),
-          icon: Icon(Icons.add),
         ),
 
         BottomNavigationBarItem(

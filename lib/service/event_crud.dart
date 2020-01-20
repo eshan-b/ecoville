@@ -47,7 +47,19 @@ class EventService {
   Stream<List<EventModel>> list() {
     return ref.orderBy('posted_date').snapshots().map((QuerySnapshot query) => query
       .documents
-      .map((snapshot) {
+      .map((DocumentSnapshot snapshot) {
+        return EventModel.fromJson(snapshot.documentID, snapshot.data);
+        /*userService.find(snapshot.data['lead_user']).then((UserModel leadUser) {
+          return EventModel.fromJson(snapshot.documentID, leadUser, snapshot.data);
+        });*/
+      }).toList()
+    );
+  }
+
+  Stream<List<EventModel>> userList(var userId) {
+    return ref.orderBy('posted_date').where("lead_user", isEqualTo: userId).snapshots().map((QuerySnapshot query) => query
+      .documents
+      .map((DocumentSnapshot snapshot) {
         return EventModel.fromJson(snapshot.documentID, snapshot.data);
         /*userService.find(snapshot.data['lead_user']).then((UserModel leadUser) {
           return EventModel.fromJson(snapshot.documentID, leadUser, snapshot.data);

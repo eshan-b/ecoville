@@ -12,15 +12,18 @@ import 'Upload2.dart';
 
 class UploadImage extends StatefulWidget {
   final currentUser;
-  UploadImage({@required this.currentUser});
+  final EventModel event;
+  UploadImage({@required this.currentUser, this.event});
 
   @override
-  _UploadImageState createState() => _UploadImageState();
+  _UploadImageState createState() => _UploadImageState(eventModelObject: event);
 }
 
 class _UploadImageState extends State<UploadImage> {
   /******* Event Object *******/ //Used throughout 4 screens
-  var eventModelObject = EventModel();
+  EventModel eventModelObject;
+
+  _UploadImageState({this.eventModelObject});
 
   @override
   Widget build(BuildContext context) {
@@ -151,14 +154,13 @@ class _UploadImageFileState extends State<UploadImageFile> {
                   ]
                 )
               ),
-
             ],
           ),
         ),
 
         SizedBox(height: 20),
 
-        _image == null ? Container() :
+        _image == null && widget._eventModelObject.photo == null ? Container() :
         Container(
           margin: EdgeInsets.all(10.0),
           width: double.infinity,
@@ -173,7 +175,7 @@ class _UploadImageFileState extends State<UploadImageFile> {
               ),
             ],
             image: DecorationImage(
-              image: Image.file(_image).image,
+              image: _image != null ? Image.file(_image).image : Image.network(widget._eventModelObject.photo).image,
               fit: BoxFit.cover,
             ),
           ),
@@ -181,7 +183,7 @@ class _UploadImageFileState extends State<UploadImageFile> {
 
         SizedBox(height: 20),
 
-        _image == null ? Container() :
+        if (_image == null && widget._eventModelObject.photo == null) Container() else
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[

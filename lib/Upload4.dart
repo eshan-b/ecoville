@@ -68,17 +68,17 @@ class _EnterLocationState extends State<EnterLocation> {
       List<Placemark> result = await Geolocator().placemarkFromAddress(searchAddr);
       print("Changing camera position to lat: ${result[0].position.latitude}, long: ${result[0].position.longitude}");
       if (result != null) {
-          widget._eventModelObject.location = GeoPoint(result[0].position.latitude, result[0].position.longitude);
-          mapController.animateCamera(
-            CameraUpdate.newCameraPosition(
-              CameraPosition(
-                target:
-                  LatLng(result[0].position.latitude, result[0].position.longitude),
-                zoom: 10.0
-              )
+        widget._eventModelObject.location = GeoPoint(result[0].position.latitude, result[0].position.longitude);
+        mapController.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target:
+                LatLng(result[0].position.latitude, result[0].position.longitude),
+              zoom: 10.0
             )
-          );
-        }
+          )
+        );
+      }
     } catch(error) {
       print("Error in search: ${error.message}");
     }

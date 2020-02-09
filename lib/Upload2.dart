@@ -68,6 +68,7 @@ class _AboutProjectState extends State<AboutProject> {
   }
 
   final eventNameController = TextEditingController();
+  final eventDescriptionController = TextEditingController();
   final teamSizeController = TextEditingController();
   /*Pretend there are two more controllers here*/
   /*The other controllers are actually variables*/ 
@@ -107,6 +108,24 @@ class _AboutProjectState extends State<AboutProject> {
 
                 decoration: InputDecoration(
                   labelText: 'What is your project name?'
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 8, 8, 8),
+              child: TextFormField(
+                controller: eventDescriptionController,
+
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter some text';
+                  }
+                  return null;
+                },
+
+                decoration: InputDecoration(
+                  labelText: 'Describe your project'
                 ),
               ),
             ),
@@ -188,6 +207,7 @@ class _AboutProjectState extends State<AboutProject> {
             RaisedButton(
               onPressed: () {
                 widget._eventModelObject.event_name = eventNameController.text;
+                widget._eventModelObject.event_description = eventDescriptionController.text;
                 widget._eventModelObject.team_size = teamSizeController.text;
                 widget._eventModelObject.event_date = formatter.format(_date);
                 widget._eventModelObject.event_time = time12Hour;

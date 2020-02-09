@@ -7,6 +7,7 @@ class EventModel {
   var event_date;
   var event_time;
   var event_name;
+  var event_description;
   var location;
   var posted_date;
   int likes = 0;
@@ -23,6 +24,7 @@ class EventModel {
     this.event_date,
     this.event_time,
     this.event_name,
+    this.event_description,
     this.location,
     this.posted_date,
     this.likes,
@@ -40,6 +42,7 @@ class EventModel {
       event_date: json['event_date'],
       event_time: json['event_time'],
       event_name: json['event_name'],
+      event_description: json['event_description'],
       location: json['location'],
       posted_date: json['posted_date'],
       likes: json['likes'] ?? 0,
@@ -55,7 +58,8 @@ class EventModel {
     "lead_user": this.lead_user, 
     "event_date": this.event_date,
     "event_time": this.event_time, 
-    "event_name": this.event_name, 
+    "event_name": this.event_name,
+    "event_description": this.event_description,
     "location": this.location, 
     "posted_date": this.posted_date, 
     "likes": this.likes ?? 0, 

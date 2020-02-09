@@ -278,7 +278,7 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
           ),
           SizedBox(height: 10),
           Text(
-            "Lorem Ipsum",
+            widget.event.event_description,
             style: TextStyle(
               fontSize: 18,
               color: Color.fromRGBO(112, 112, 112, 1),

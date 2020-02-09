@@ -3,8 +3,6 @@ import 'package:ecoville/service/user_crud.dart';
 import 'event_model.dart';
 import 'dart:async';
 
-import 'user_model.dart';
-
 class EventService {
   final CollectionReference ref = Firestore.instance.collection("events");
   final UserService userService = UserService();

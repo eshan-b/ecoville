@@ -1,11 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecoville/service/event_crud.dart';
 import 'package:ecoville/service/event_model.dart';
 import 'package:ecoville/service/user_crud.dart';
 import 'service/user_model.dart';
 
 import 'EventDetail.dart';
-import 'util/EventCard.dart';
+import 'util/EventCard_New.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'dart:async';
@@ -15,7 +14,6 @@ class FeedWidget extends StatefulWidget {
 
   FeedWidget(this.currentUser);
 
-  //Information for the feeds
   @override
   _FeedWidgetState createState() => _FeedWidgetState();
 }
@@ -29,12 +27,6 @@ class _FeedWidgetState extends State<FeedWidget> {
     this.events = EventService().list();
   }
 
-  /*
-   * Since Dart await does not always wait, this is a workaround.
-   * 1. Change event_model to have Future<UserModel> instead of UserModel
-   * 2. The event.user which we thought would be resolved after await but it actually takes time to resolve.
-   * 3. Set event.user = Future<UserModel> and let Event Card and Event Details await again until it is resolved.
-   */
   Future<UserModel> _findLeadUser(EventModel event) async {
     UserModel user = await UserService().find(event.lead_user);
     return user;
@@ -65,7 +57,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                     MaterialPageRoute(builder: (context) => EventDetail(currentUser: widget.currentUser, event: event))
                   )
                 },
-                child: EventCard(currentUser: widget.currentUser, event: event)
+                child: EventCardNew(currentUser: widget.currentUser, event: event)
               );
             }
           );

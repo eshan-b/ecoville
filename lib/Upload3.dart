@@ -140,7 +140,6 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
               ]
             )
           ),
-
         ],
       )
     );

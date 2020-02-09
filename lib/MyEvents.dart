@@ -130,7 +130,7 @@ class _MyEventsState extends State<MyEvents> {
   Widget buildPopupMenuButton(EventModel event) {
     return PopupMenuButton<Menu>(
       onSelected: (Menu result) {
-        eshan(result, event);
+        pickMenu(result, event);
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>> [
         PopupMenuItem<Menu>(
@@ -157,9 +157,13 @@ class _MyEventsState extends State<MyEvents> {
     );
   }
 
-  void eshan(Menu result, EventModel event) {
+  void pickMenu(Menu result, EventModel event) async {
     if(result == Menu.delete) {
-      EventService().delete(widget.event.documentID);
+      print("Deleting Event");
+      await EventService().delete(event.documentID);
+      setState(() {
+        this.events = EventService().userList(currentUser.documentID);
+      });
     } else if(result == Menu.edit) {  
       Navigator.push(
         context, 

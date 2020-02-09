@@ -101,6 +101,8 @@ class BottomCommentBar extends StatelessWidget {
                     );
                     print(obj.toJson());
                     await CommentService(event.documentID).create(obj);
+                    commentController.clear();
+                    FocusScope.of(context).unfocus();
                   },
                   child: Icon(
                     Icons.send,

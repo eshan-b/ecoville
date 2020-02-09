@@ -59,37 +59,38 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
     return Scaffold(
       backgroundColor: Colors.white,
 
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget> [
-            Text(widget.event.event_name),
-            if(isSignedUp == false) buildSignupButton() else buildUndoButton(),
-          ]
-        ),
-
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
-          color: Colors.white,
-          onPressed: () => {
-            Navigator.pop(context)
-          },
-        ),
-      ),
-
       body: ListView(
         children: <Widget>[
-          SizedBox(height: 20),
+          Stack(
+            children: <Widget>[
+              buildImage(),
 
-          buildImage(),
+              Container(
+                height: 100,
+                width: 50,
+                color: Colors.grey.withOpacity(0.3), //keep for disabled
+                margin: EdgeInsets.only(top: 170.0),
+                child: FlatButton(
+                  color: Colors.grey.withOpacity(0.3),
+                  child: Icon(Icons.arrow_back_ios),
+                  onPressed: () {
+                    return Navigator.pop(context);
+                  }, 
+                ),
+              ),
 
-          SizedBox(height: 20),
-
+              Container(
+                margin: EdgeInsets.only(top: 340.0),
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0), topRight: Radius.circular(15.0))
+                ),
+              ),
+            ],
+          ),
           buildTabs(),
-
-          //SizedBox(height: 20),
-
-          showIndexTab()
+          showIndexTab(),
         ],
       ),
       bottomNavigationBar: (selectedIndex == 1) ? BottomCommentBar(currentUser: widget.currentUser, event: widget.event) : Container(height: 0)
@@ -109,7 +110,7 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
       },
       splashColor: Colors.green[600],
       color: Colors.green[300],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       highlightElevation: 1,
 
       child: Padding(
@@ -162,11 +163,9 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
 
   Widget buildImage() {
     return Container(
-      margin: EdgeInsets.all(10.0),
       width: double.infinity,
       height: 360.0,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25.0),
         boxShadow: [
           BoxShadow(
             color: Colors.black45,
@@ -176,7 +175,7 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
         ],
 
         image: DecorationImage(
-          image: widget.event.photo != null ? NetworkImage(widget.event.photo) : AssetImage("lib/StockImages/Mountain1.jpg"), // TBD: change it to uploaded image
+          image: widget.event.photo != null ? NetworkImage(widget.event.photo) : AssetImage("lib/StockImages/Mountain1.jpg"),
           fit: BoxFit.cover,
         ),
       ),
@@ -188,8 +187,8 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
 
   Widget buildTabs() {
     return Container(
-      height: 60,
-      color: Colors.green[300],
+      height: 80,
+      color: Colors.white,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: BouncingScrollPhysics(),
@@ -202,16 +201,30 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
               });
             },
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 60/3,vertical: 60/4),
-              child: Text(
-                categories[index],
-                style: TextStyle(
-                  color: index == selectedIndex ? Colors.white : Colors.white60,
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                )
-              )
+              padding: const EdgeInsets.only(left: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0.0, 10.0, 20.0, 10.0),
+                    child: Text(
+                      categories[index],
+                      style: TextStyle(
+                        color: index == selectedIndex ? Colors.black : Colors.black45,
+                        fontSize: 28.0,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2, 
+                      )
+                    )
+                  ),
+                  index == selectedIndex ? Container(
+                    height: 5,
+                    width: 50,
+                    color: Color.fromRGBO(53, 136, 86, 1),
+                  ) :
+                  Container(height: 0),
+                ],
+              ),
             )
           );
         }
@@ -223,7 +236,24 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
     if (selectedIndex == 0) 
       return buildAbout();
     else if (selectedIndex == 1) 
-      return CommentCardList(event: widget.event, currentUser: widget.currentUser);
+      return Column(
+        children: <Widget>[
+          Container(
+            height: 50, 
+            color: Color.fromRGBO(153, 195, 169, 1),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.info, color: Color.fromRGBO(18, 79, 42, 1)),
+                SizedBox(width: 10),
+                Text("Remember to be polite and constructive"),
+              ],
+            )
+          ),
+          SizedBox(height: 10),
+          CommentCardList(event: widget.event, currentUser: widget.currentUser)
+        ],
+      );
     else if (selectedIndex == 2) 
       return SuppliesCard(event: widget.event);
     else 
@@ -231,12 +261,74 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
   }
 
   Widget buildAbout() {
-    return Column(
-      children: <Widget>[
-        buildUserCard(),
-        Text("Posted on: ${DateFormat.yMd().add_jm().format(widget.event.posted_date.toDate())}"),
-        Text("Event on: ${widget.event.event_date} | ${widget.event.event_time}")
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 0.0, left: 20.0, bottom: 20.0, right: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text("Posted on: ${DateFormat.yMd().add_jm().format(widget.event.posted_date.toDate())}"),
+          Text("Event on: ${widget.event.event_date} | ${widget.event.event_time}"),
+          SizedBox(height: 20),
+
+          Text(
+            widget.event.event_name,
+            style: TextStyle(
+              fontSize: 24
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            "Lorem Ipsum",
+            style: TextStyle(
+              fontSize: 18,
+              color: Color.fromRGBO(112, 112, 112, 1),
+            ),
+          ),
+
+          SizedBox(height: 30),
+
+          Text(
+            "Event Leader",
+            style: TextStyle(
+              fontSize: 24
+            ),
+          ),
+          SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: Row(
+              children: <Widget>[
+                CircleAvatar(
+                  child: ClipOval(
+                    child: Image(
+                      height: 50,
+                      width: 50,
+                      image: (leadUser != null && leadUser.photo_url != null) ? NetworkImage(leadUser.photo_url) : AssetImage('lib/StockImages/TreeUserIcon.png'),
+                      fit: BoxFit.cover
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Text(
+                  leadUser.display_name,
+                  style: TextStyle(
+                    fontSize: 18
+                  ),
+                )
+              ],
+            ),
+          ),
+
+          SizedBox(height: 30),
+          Text(
+            "Volunteers",
+            style: TextStyle(
+              fontSize: 24
+            ),
+          ),
+          SizedBox(height: 10),
+        ],
+      ),
     );
   }
 
@@ -358,5 +450,4 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
       )
     );
   }
-
 }

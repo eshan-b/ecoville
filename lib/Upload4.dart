@@ -24,19 +24,19 @@ class _EnterLocationState extends State<EnterLocation> {
   GoogleMapController mapController;
 
   String searchAddr;
+  TextEditingController _addressController;
+  bool _validate = false;
 
   Future<void> _createEvent(BuildContext context) async {
     widget._eventModelObject.lead_user = widget.currentUser.documentID;
-    //widget._eventModelObject.location = mapController.getLatLng(screenCoordinate);
     print(widget._eventModelObject.toJson());
-    //if (widget._eventModelObject == null) {
-      /*Scaffold.of(context)
-        .showSnackBar(SnackBar(content: Text('Processing...')));*/
       await EventService().create(widget._eventModelObject);
-    /*} else {
-      Scaffold.of(context)
-        .showSnackBar(SnackBar(content: Text('Event already exists')));
-    }*/
+  }
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
   }
 
   @override
@@ -48,12 +48,7 @@ class _EnterLocationState extends State<EnterLocation> {
   void _getCurrentLocation() async {
     final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
     _currentPosition = geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-    /*if(mounted) {
-      setState(() {
-        _currentPosition = position;
-        print("Got location: $_currentPosition");
-      });
-    }*/
+    //comment something don't delete
   }
 
   void onMapCreated(controller) {
@@ -88,7 +83,13 @@ class _EnterLocationState extends State<EnterLocation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Event Location'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text('Event Location'),
+            buildSubmitButton(),
+          ],
+        )
       ),
 
       body: FutureBuilder<Position>(
@@ -107,15 +108,17 @@ class _EnterLocationState extends State<EnterLocation> {
                 mapType: MapType.normal,
                 compassEnabled: true,
               ),
-
               buildEnterAddress(),
-
-              buildSubmitButton()
+              Container(
+                height: 50,
+                padding: EdgeInsets.only(left: 20, right: 20),
+                margin: EdgeInsets.only(top: 100.0),
+                child: buildUseCurrentButton(snapshot.data.latitude, snapshot.data.longitude),
+              ),
             ],
           );
         }
-        )
-      
+      )
     );
   }
 
@@ -140,13 +143,18 @@ class _EnterLocationState extends State<EnterLocation> {
         ),
 
         child: TextField(
+          controller: _addressController,
           decoration: InputDecoration(
+            errorText: _validate ? 'Value Can\'t Be Empty' : null,
             hintText: 'Enter Address',
             border: InputBorder.none,
             contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
             suffixIcon: IconButton(
               icon: Icon(Icons.search),
-              onPressed: () async {await searchandNavigate();},
+              onPressed: () async {
+                await searchandNavigate();
+                FocusScope.of(context).unfocus();
+              },
               iconSize: 30.0
             )
           ),
@@ -156,7 +164,6 @@ class _EnterLocationState extends State<EnterLocation> {
               searchAddr = val;
             });
           },
-
         )
       )
     );
@@ -169,6 +176,9 @@ class _EnterLocationState extends State<EnterLocation> {
       children: <Widget>[
         RaisedButton(
           onPressed: () async {
+            setState(() {
+              _addressController.text.isEmpty ? _validate = true : _validate = false;
+            });
             await searchandNavigate();
             await _createEvent(context);
 
@@ -185,6 +195,7 @@ class _EnterLocationState extends State<EnterLocation> {
           child: Row(
             children: <Widget>[
               Text("Submit"),
+              SizedBox(width: 5),
               Icon(Icons.done)
             ]
           )
@@ -193,50 +204,29 @@ class _EnterLocationState extends State<EnterLocation> {
     );
   }
 
-}
-
-/*Column(
-children: <Widget>[
-  Padding(
-    padding: const EdgeInsets.fromLTRB(15, 8, 8, 8),
-    child: TextFormField(
-      controller: eventLocationController,
-
-      decoration: InputDecoration(
-        labelText: 'Where does your project take place?'
+  Widget buildUseCurrentButton(currentLat, currentLong) {
+    return RaisedButton(
+      color: Colors.green[200],
+      splashColor: Colors.green[600],
+      padding: EdgeInsets.all(10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      highlightElevation: 1,
+      child: Row(
+        children: <Widget>[
+          Icon(Icons.gps_fixed),
+          SizedBox(width: 5),
+          Text("Use Current Location"),
+        ]
       ),
+      onPressed: () async {
+        widget._eventModelObject.location = GeoPoint(currentLat, currentLong);
+        await _createEvent(context);
 
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Please enter some text';
-        }
-        return null;
-      },
-    ),
-  ),
-
-  SizedBox(height: 20),
-
-  RaisedButton(
-    onPressed: () async {
-      await _createEvent(context);
-
-      return Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen(currentUser: widget.currentUser))
-      );
-    },
-    color: Colors.green[200],
-    splashColor: Colors.green[600],
-    padding: EdgeInsets.all(10),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-    highlightElevation: 1,
-    child: Row(
-      children: <Widget>[
-        Text("Submit"),
-        Icon(Icons.done)
-      ]
-    )
-  ),
-] 
-)*/
+        return Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen(currentUser: widget.currentUser))
+        );
+      }
+    );
+  }
+}

@@ -1,8 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ecoville/service/event_crud.dart';
 import 'package:intl/intl.dart';
 import '../service/event_model.dart';
-import '../service/user_crud.dart';
 import '../service/user_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';

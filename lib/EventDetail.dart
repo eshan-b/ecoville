@@ -97,8 +97,12 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
     );
   }
 
-  RaisedButton buildSignupButton() {
-    return RaisedButton(
+  Widget buildSignupButton() {
+    return OutlineButton(
+      borderSide: BorderSide(width: 2, color: Color.fromRGBO(53, 136, 86, 1)),
+      color: Color.fromRGBO(53, 136, 86, 1),
+      splashColor: Color.fromRGBO(53, 136, 86, 1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       onPressed: () async {
         await SignupService(widget.event.documentID).create(
           EventSignupModel(signed_user: widget.currentUser.documentID)
@@ -108,18 +112,13 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
           this.isSignedUp = true;  
         });
       },
-      splashColor: Colors.green[600],
-      color: Colors.green[300],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      highlightElevation: 1,
-
       child: Padding(
         padding: const EdgeInsets.all(4),
         child: Text(
           'Sign-Up',
           style: TextStyle(
-            fontSize: 15,
-            color: Colors.white 
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -327,6 +326,8 @@ class _EventDetailState extends State<EventDetail> with SingleTickerProviderStat
             ),
           ),
           SizedBox(height: 10),
+
+          if(isSignedUp == false) buildSignupButton() else buildUndoButton(),
         ],
       ),
     );

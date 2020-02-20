@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'dart:io';
 import 'dart:async';
 
@@ -82,93 +84,160 @@ class _EnterLocationState extends State<EnterLocation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset : false, //prevents overflow
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text('Event Location'),
-            buildSubmitButton(),
-          ],
-        )
+        elevation: 0.0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Color.fromRGBO(53, 136, 86, 1),
+          ), 
+          onPressed: () => {
+            Navigator.pop(context),
+          },
+        ),
+        centerTitle: true,
+        title: Text(
+          "Location",
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size(MediaQuery.of(context).size.width, 40),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(53, 136, 86, 1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              SizedBox(width: 10),
+              Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(53, 136, 86, 1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              SizedBox(width: 10),
+              Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(53, 136, 86, 1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              SizedBox(width: 10),
+              Container(
+                height: 30,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(53, 136, 86, 1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
 
       body: FutureBuilder<Position>(
         future: _currentPosition,
         builder: (BuildContext context, AsyncSnapshot<Position> snapshot) {
           if (!snapshot.hasData) return Text("Getting device location...");
-          return Stack(
+          return Column(
             children: <Widget>[
-              GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(snapshot.data.latitude, snapshot.data.longitude),
-                  zoom: 15.0
-                ),
-                onMapCreated: onMapCreated,
-                myLocationEnabled: true,
-                mapType: MapType.normal,
-                compassEnabled: true,
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  buildSubmitButton(),
+                  SizedBox(width: 10),
+                  buildUseCurrentButton(snapshot.data.latitude, snapshot.data.longitude)
+                ],
               ),
+              SizedBox(height: 20),
               buildEnterAddress(),
               Container(
-                height: 50,
-                padding: EdgeInsets.only(left: 20, right: 20),
-                margin: EdgeInsets.only(top: 100.0),
-                child: buildUseCurrentButton(snapshot.data.latitude, snapshot.data.longitude),
+                height: MediaQuery.of(context).size.height - 258,
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(snapshot.data.latitude, snapshot.data.longitude),
+                    zoom: 15.0
+                  ),
+                  onMapCreated: onMapCreated,
+                  myLocationEnabled: true,
+                  mapType: MapType.normal,
+                  compassEnabled: true,
+                ),
               ),
             ],
           );
-        }
-      )
+        },
+      ),
     );
   }
 
   Widget buildEnterAddress() {
-    return Positioned(
-      top: 30.0, right: 15.0, left: 15.0,
-      child: Container(
-        height: 50.0,
-        width: double.infinity,
-        
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0), 
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey,
-              offset: Offset(1.0, 5.0),
-              blurRadius: 10,
-              spreadRadius: 3
-            )
-          ],
+    return Container(
+      height: 50.0,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0), 
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey,
+            offset: Offset(1.0, 5.0),
+            blurRadius: 10,
+            spreadRadius: 3
+          )
+        ],
+      ),
+
+      child: PlacesAutocompleteFormField(
+        apiKey: "AIzaSyDYDvp6jmjkieiFsDs5XE5HzRVtUvkRiZ4",
+        mode: Mode.overlay,
+        onError: onError,
+        controller: _addressController,
+        hint: "Enter Address",
+        trailing: Icon(Icons.search),
+        trailingOnTap: () async {
+          if (_addressController != null) {
+            FocusScope.of(context).unfocus();
+            return await searchandNavigate();
+          } else {
+            FocusScope.of(context).unfocus();
+            return SnackBar(content: Text("Please enter a location"));
+          }
+        },
+        inputDecoration: InputDecoration(
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.only(left: 15.0, right: 15.0),
         ),
-
-        child: TextField(
-          controller: _addressController,
-          decoration: InputDecoration(
-            errorText: _validate ? 'Value Can\'t Be Empty' : null,
-            hintText: 'Enter Address',
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
-            suffixIcon: IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () async {
-                await searchandNavigate();
-                FocusScope.of(context).unfocus();
-              },
-              iconSize: 30.0
-            )
-          ),
-
-          onChanged: (val) {
-            setState(() {
-              searchAddr = val;
-            });
-          },
-        )
-      )
+        onSaved: (val) {
+          setState(() {
+            searchAddr = val;
+          });
+        },
+      ),
     );
   }
 
+  void onError(PlacesAutocompleteResponse response) {
+    print("Autocomplete Error: " + response.errorMessage);
+  }
+  
   Widget buildSubmitButton() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -176,12 +245,8 @@ class _EnterLocationState extends State<EnterLocation> {
       children: <Widget>[
         RaisedButton(
           onPressed: () async {
-            setState(() {
-              _addressController.text.isEmpty ? _validate = true : _validate = false;
-            });
             await searchandNavigate();
             await _createEvent(context);
-
             return Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => HomeScreen(currentUser: widget.currentUser))
@@ -195,7 +260,6 @@ class _EnterLocationState extends State<EnterLocation> {
           child: Row(
             children: <Widget>[
               Text("Submit"),
-              SizedBox(width: 5),
               Icon(Icons.done)
             ]
           )

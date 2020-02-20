@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'Upload4.dart';
 import 'dart:io';
 
@@ -27,8 +28,70 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Supplies for Event'),
+        elevation: 0.0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Color.fromRGBO(53, 136, 86, 1),
+          ), 
+          onPressed: () => {
+            Navigator.pop(context),
+          },
+        ),
+        centerTitle: true,
+        title: Text(
+          "Supplies",
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size(MediaQuery.of(context).size.width, 40),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(53, 136, 86, 1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              SizedBox(width: 10),
+              Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(53, 136, 86, 1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              SizedBox(width: 10),
+              Container(
+                height: 30,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(53, 136, 86, 1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              SizedBox(width: 10),
+              Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
 
       body: Column(
@@ -39,13 +102,6 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
                 children: <Widget>[
                   TextFormField(
                     controller: _textController,
-
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
 
                     decoration: InputDecoration(
                       labelText: "What supplies do you need?",
@@ -79,7 +135,6 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
               
                 return Dismissible(
                   key: Key(data),
-
                   onDismissed: (direction) {
                     setState(() {
                       _listViewData.remove(data);
@@ -92,7 +147,6 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
                         )
                       );
                   },
-
                   background: Container(
                     color: Colors.red,
                     child: Row(
@@ -102,7 +156,6 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
                           Icons.delete,
                           color: Colors.white
                         ),
-
                         Text(
                           "  Delete",
                           style: TextStyle(
@@ -112,7 +165,6 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
                       ],
                     )
                   ),
-                  
                   child: ListTile(
                     title: Text(data),
                   ),
@@ -120,25 +172,77 @@ class _AddRemoveListViewState extends State<AddRemoveListView> {
               },
             ),
           ),
-
-          RaisedButton(
-            onPressed: () {
-              widget._eventModelObject.supplies = _listViewData;
-
-              return Navigator.push(
-                context, 
-                MaterialPageRoute(builder: (context) => EnterLocation(widget._eventModelObject, widget.currentUser))
-              );
-            },
-
-            color: Colors.green[200],
-            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-            child: Row(
-              children: <Widget>[
-                Icon(Icons.arrow_forward),
-                Text("  Next")
-              ]
-            )
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              OutlineButton(
+                borderSide: BorderSide(width: 2, color: Color.fromRGBO(53, 136, 86, 1)),
+                color: Color.fromRGBO(53, 136, 86, 1),
+                splashColor: Color.fromRGBO(53, 136, 86, 1),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      "Next",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Icon(
+                      Icons.navigate_next, 
+                      color: Color.fromRGBO(53, 136, 86, 1),
+                      size: 24,
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  widget._eventModelObject.supplies = _listViewData;
+                  if (_listViewData.length == 0) {
+                    return showDialog<void> (
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext build) {
+                        return AlertDialog(
+                          title: Text("Confirmation to proceed"),
+                          content: Text("Are you sure that you want to continue without any supplies"),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text("CLOSE"),
+                              onPressed: () => {
+                                Navigator.of(context).pop()
+                              },
+                            ),
+                            FlatButton(
+                              child: Text("CONTINUE"),
+                              onPressed: () => {
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.fade,
+                                    child: EnterLocation(widget._eventModelObject, widget.currentUser)
+                                  ),
+                                ),
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    return Navigator.push(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.fade,
+                        child: EnterLocation(widget._eventModelObject, widget.currentUser)
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
           ),
         ],
       )

@@ -40,6 +40,12 @@ dependencies:
 
   geolocator:
 
+  flutter_google_places:
+  
+  google_maps_webservice:
+
+  page_transition: ^1.1.5
+
   expand_widget: ^0.2.0+2 #for show more text or widgets
 
   intl: ^0.16.0 #for date formatting

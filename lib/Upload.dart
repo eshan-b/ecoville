@@ -3,6 +3,7 @@ import 'package:ecoville/service/event_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 
@@ -28,39 +29,77 @@ class _UploadImageState extends State<UploadImage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget> [
-            Text("Upload Image"),
-
-            RaisedButton(
-              onPressed: () => {
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(builder: (context) => HomeScreen(currentUser: widget.currentUser)) //Just to pass currentUser back to Home Page
-                )
-              },
-              splashColor: Colors.green[600],
-              color: Colors.green[300],
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-              highlightElevation: 1,
-
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.white 
-                  ),
+        elevation: 0.0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Color.fromRGBO(53, 136, 86, 1),
+          ), 
+          onPressed: () => {
+            Navigator.pop(context),
+          },
+        ),
+        centerTitle: true,
+        title: Text(
+          "Upload Image",
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size(MediaQuery.of(context).size.width, 40),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                height: 30,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(53, 136, 86, 1),
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ),
-            ),
-          ]
+
+              SizedBox(width: 10),
+
+              Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+
+              SizedBox(width: 10),
+
+              Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+
+              SizedBox(width: 10),
+
+              Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-
       body: UploadImageFile(eventModelObject, widget.currentUser)
     );
   }
@@ -68,14 +107,13 @@ class _UploadImageState extends State<UploadImage> {
 
 //UploadImageFile
 class UploadImageFile extends StatefulWidget {
-  @override
-  _UploadImageFileState createState() => _UploadImageFileState();
-
   var _eventModelObject;
   final currentUser;
 
-  /*** Constructor GANG ***/ //for passing my object down here
   UploadImageFile(this._eventModelObject, this.currentUser);
+  
+  @override
+  _UploadImageFileState createState() => _UploadImageFileState();
 }
 
 class _UploadImageFileState extends State<UploadImageFile> {
@@ -84,17 +122,15 @@ class _UploadImageFileState extends State<UploadImageFile> {
   Future getImage(bool isCamera) async {
     File image;
 
-      if(isCamera) {
-        image = await ImagePicker.pickImage(source: ImageSource.camera);      
-      } else {
-        image = await ImagePicker.pickImage(source: ImageSource.gallery);
-      }
+    if(isCamera) {
+      image = await ImagePicker.pickImage(source: ImageSource.camera);      
+    } else {
+      image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    }
 
     setState(() {
       _image = image;
     });
-
-    
   }
 
   Future uploadPic(BuildContext context) async{
@@ -120,6 +156,7 @@ class _UploadImageFileState extends State<UploadImageFile> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
+        SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -185,32 +222,42 @@ class _UploadImageFileState extends State<UploadImageFile> {
 
         if (_image == null && widget._eventModelObject.photo == null) Container() else
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            RaisedButton(
-              onPressed: () {
-                uploadPic(context);
-
-                return Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AboutProject(widget._eventModelObject, widget.currentUser))
-                );
-              },
-              color: Colors.green[200],
-              splashColor: Colors.green[600],
-              padding: EdgeInsets.all(10),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-              highlightElevation: 1,
+            OutlineButton(
+              borderSide: BorderSide(width: 2, color: Color.fromRGBO(53, 136, 86, 1)),
+              color: Color.fromRGBO(53, 136, 86, 1),
+              splashColor: Color.fromRGBO(53, 136, 86, 1),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
               child: Row(
                 children: <Widget>[
-                  Text("Next"),
-                  Icon(Icons.arrow_forward)
-                ]
-              )
+                  Text(
+                    "Next",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Icon(
+                    Icons.navigate_next, 
+                    color: Color.fromRGBO(53, 136, 86, 1),
+                    size: 24,
+                  ),
+                ],
+              ),
+              onPressed: () {
+                return Navigator.push(
+                  context,
+                  PageTransition(
+                    type: PageTransitionType.fade,
+                    child: AboutProject(widget._eventModelObject, widget.currentUser)
+                  )
+                );
+              },
             ),
           ],
         ),
-        
       ],
     );
   }

@@ -51,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
 
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Image.asset("lib/StockImages/Leaf-top.png"),
 
@@ -64,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       "Welcome",
                       style: TextStyle(
                         color: Colors.white,
+                        fontWeight: FontWeight.w600,
                         fontSize: 50,
                       ),
                     ),
